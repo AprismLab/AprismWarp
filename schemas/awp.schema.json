@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aprismwarp.local/schema/awp/v1",
+  "title": "AprismWarp Project Manifest",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["format", "schemaVersion", "projectId", "name", "target", "source"],
+  "properties": {
+    "format": {"const": "aprismwarp-project"},
+    "schemaVersion": {"type": "integer", "const": 1},
+    "projectId": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{1,63}$"},
+    "name": {"type": "string", "minLength": 1},
+    "target": {
+      "type": "object",
+      "required": ["aprism", "edition", "minecraft"],
+      "properties": {
+        "aprism": {"type": "string", "minLength": 1},
+        "edition": {"const": "JE"},
+        "minecraft": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": true
+    },
+    "source": {
+      "type": "object",
+      "required": ["editor", "project", "ir"],
+      "properties": {
+        "editor": {"const": "aprismwarp-native"},
+        "project": {"const": "editor/project.json"},
+        "ir": {"const": "ir/project.json"}
+      },
+      "additionalProperties": true
+    },
+    "resources": {"const": "resources/"}
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aprismwarp.local/schema/ir/v1",
+  "title": "AprismWarp Intermediate Representation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["irVersion", "projectId", "target", "capabilities", "declarations", "handlers"],
+  "properties": {
+    "irVersion": {"type": "integer", "const": 1},
+    "projectId": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{1,63}$"},
+    "target": {"type": "object", "required": ["edition", "minecraft", "aprism"], "additionalProperties": false, "properties": {"edition": {"const": "JE"}, "minecraft": {"type": "string"}, "aprism": {"type": "string"}}},
+    "capabilities": {"type": "array", "items": {"type": "string", "enum": ["basic", "intermediate", "advanced", "native"]}, "uniqueItems": true},
+    "declarations": {"type": "array", "items": {"$ref": "#/$defs/declaration"}},
+    "handlers": {"type": "array", "items": {"$ref": "#/$defs/handler"}}
+  },
+  "$defs": {
+    "nodeId": {"type": "string", "pattern": "^[A-Za-z0-9_-]{1,128}$"},
+    "resourceKey": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{1,63}:[a-z][a-z0-9_-]{1,63}$"},
+    "declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nodeId", "kind", "declaration", "id"],
+      "properties": {
+        "nodeId": {"$ref": "#/$defs/nodeId"},
+        "kind": {"const": "declaration"},
+        "declaration": {"type": "string", "enum": ["mod", "dependency", "item", "block", "resource"]},
+        "id": {"type": "string"},
+        "maxStack": {"type": "integer", "minimum": 1, "maximum": 64},
+        "hardness": {"type": "number"},
+        "resistance": {"type": "number"},
+        "luminance": {"type": "integer", "minimum": 0, "maximum": 15},
+        "path": {"type": "string", "pattern": "^(?!/)(?!.*\\.\\.).+$"}
+      }
+    },
+    "handler": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nodeId", "kind", "event", "body"],
+      "properties": {
+        "nodeId": {"$ref": "#/$defs/nodeId"},
+        "kind": {"const": "event"},
+        "event": {"type": "string", "enum": ["lifecycle.preinit", "lifecycle.init", "lifecycle.setup", "lifecycle.complete", "game.tick", "world.load", "world.unload"]},
+        "stage": {"type": "string", "enum": ["START", "END"]},
+        "body": {"type": "array", "items": {"$ref": "#/$defs/action"}}
+      }
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nodeId", "kind", "action"],
+      "properties": {
+        "nodeId": {"$ref": "#/$defs/nodeId"},
+        "kind": {"const": "action"},
+        "action": {"type": "string", "enum": ["schedule.once", "schedule.repeat", "wait", "log.info", "set-variable", "compare"]},
+        "delayTicks": {"type": "integer", "minimum": 1},
+        "intervalTicks": {"type": "integer", "minimum": 1},
+        "message": {"type": "string", "maxLength": 4096},
+        "previewOnly": {"type": "boolean"}
+      }
+    }
+  }
+}

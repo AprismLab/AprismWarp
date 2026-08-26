@@ -1,0 +1,11 @@
+node_modules/
+dist/
+build/
+.cache/
+coverage/
+*.log
+upstream/scratch-gui/
+upstream/scratch-vm/
+workspace/
+runtime/
+artifacts/

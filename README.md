@@ -58,6 +58,21 @@ When AprismWarp opens without a project, it starts with a creation wizard. The u
 - Generated Java/Kotlin or Aprism-native source view for advanced users.
 - Optional `.aep` editor capability manifests and `.awe` editor extensions, with explicit permissions and project locks.
 
+### AEP editor capability inspection
+
+An Aprism Extension may include a declarative `aprismwarp.editor.json` at the
+archive root. AprismWarp can inspect it without loading or executing the
+embedded runtime jar:
+
+```powershell
+npm run inspect:aep -- path/to/extension.aep
+```
+
+The command emits the validated block catalog as JSON. Legacy `.aep` archives
+remain installable and return an empty editor catalog. Unsafe archive paths,
+unknown schema versions, malformed manifests, duplicate IDs, and oversized
+editor manifests fail closed.
+
 ## Explicit Non-Goals for the First Iteration
 
 - Running a Minecraft JVM inside browser JavaScript.

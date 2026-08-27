@@ -6,8 +6,10 @@
   "license": "GPL-3.0-only",
   "type": "commonjs",
   "scripts": {
-    "test": "node --test test/ir/validate.test.js",
-    "validate:example": "node scripts/validate-example.js"
+    "test": "node --test test/ir/validate.test.js test/aep/inspect.test.js",
+    "validate:example": "node scripts/validate-example.js",
+    "test:aep": "node --test test/aep/inspect.test.js",
+    "inspect:aep": "node scripts/inspect-aep.js"
   },
   "engines": {
     "node": ">=20"

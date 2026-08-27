@@ -25,7 +25,15 @@ extension.aep
 
 `aprismwarp.editor.json` is optional and declarative. When present, it maps runtime capabilities exposed by the `.aep` into typed AprismWarp blocks, validators, generated API calls, and documentation links. An `.aep` without it remains installable and usable by Aprism, but adds no editor blocks.
 
-This is additive and does not require an Aprism `.aep` format break. `[H]` The Aprism runtime scans its root manifest and embedded jars; unrecognized ZIP entries are not consumed by its current extension loader. `[V]` Source: `ExtensionLoader` and `PackageAepTask`.
+AprismWarp's `inspectAep()` reader consumes only the root-level editor
+manifest. It reads the ZIP central directory and supports stored/deflated
+JSON entries; it never loads `extension.jar`, follows native libraries, or
+executes an entrypoint. The default editor-manifest limit is 1 MiB. Any unsafe
+archive path, malformed ZIP, unsupported compression method, malformed JSON,
+unknown schema, duplicate capability/block id, or invalid block field causes
+the catalog to fail closed.
+
+This is additive and does not require an Aprism `.aep` format break. `[H]` The Aprism runtime scans its root manifest and embedded jars; unrecognized ZIP entries are not consumed by its current extension loader. `[V]` Source: `ExtensionLoader` and `PackageAepTask`. The official packaging-plugin input for this optional file remains a follow-up task.
 
 ## 2. AEP Editor Capability Manifest
 

@@ -59,7 +59,7 @@
 - [TODO] Implement the no-project creation wizard and work-type-specific editor palettes.
 - [DONE] Added work-type-aware IR validation, schemas, minimal `AprismJEMod` fixture, and extension validation tests.
 - [DONE] Defined the dual extension model: optional declarative `.aep` editor capability manifests and separate permissioned `.awe` editor extensions.
-- [TODO] Implement archive inspection for `.aep` and `.awe` manifests without executing embedded code.
+- [DONE] Implemented read-only `.aep` editor-manifest inspection without executing embedded code (`src/aep/inspect.js`, `npm run inspect:aep`).
 - [DONE] Adopted GPL-3.0-only for AprismWarp before importing or modifying TurboWarp scratch-gui code.
 
 ## 5. Acceptance Gates
@@ -71,3 +71,24 @@
 5. Runtime validation records logs and failure reasons from the isolated instance.
 
 <!-- GitHub@NDBlockConnect | BlockConnect@StarsailsClover -->
+
+### 2026-08-26 - v26.8-Alpha.8 AEP capability index
+
+- [DONE] Reused the existing `aprismwarp.aep-editor/v1` design rather than
+  introducing an incompatible AEP revision. The optional root entry
+  `aprismwarp.editor.json` is the static bridge between runtime capabilities
+  and AprismWarp blocks.
+- [DONE] Added a dependency-free Node ZIP inspector that reads stored and
+  deflated entries, validates archive bounds and safe paths, enforces a 1 MiB
+  manifest limit, validates schema/capability/block/field IDs, and returns a
+  read-only block catalog.
+- [DONE] Added `scripts/inspect-aep.js` and `npm run inspect:aep`. The command
+  never loads or executes `extension.jar`, native libraries, or entrypoints.
+- [DONE] Added four AEP tests: valid catalog extraction, legacy-package
+  compatibility, duplicate/unsafe input rejection, malformed/oversized JSON.
+- [DECISION] `.aep` remains backward-compatible: `aprism.extension.json` is
+  still the runtime authority; `aprismwarp.editor.json` is optional editor
+  metadata. A legacy AEP loads in Aprism but contributes no Warp blocks.
+- [TODO] Extend `PackageAepTask` with an optional editor-manifest input so
+  extension authors can produce this entry through the official Aprism
+  packaging plugin; this is the next cross-repository packaging task.

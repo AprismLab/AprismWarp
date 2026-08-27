@@ -4,6 +4,8 @@ Status: design baseline, 2026-08-27.
 
 AprismWarp presents a visual block editor, but its language is not Scratch. The block shapes are a user interface for an Aprism-specific typed DSL whose only execution target is the Aprism API capability profile selected by the project.
 
+The editor has two work types. `AprismJEMod` emits an Aprism-native `.aje` mod. `AprismExtension` emits an Aprism `.aep` extension that registers runtime/provider capabilities before the mod scan. They share project metadata and diagnostics, but do not share the same output contract or unrestricted block palette.
+
 ## 1. Design Rules
 
 1. Every block has a stable `blockId`.
@@ -23,6 +25,15 @@ AprismWarp presents a visual block editor, but its language is not Scratch. The 
 | Native | platform specialist | native bridge and C/C++ integration | separate reviewed artifact, not basic `.aje` flow |
 
 The initial implementation exposes only Basic. Intermediate and Advanced must be represented in the IR as explicit capability requirements even before their visual blocks exist.
+
+## 2.1 Work Types
+
+| Work type | Runtime position | Output | Initial palette |
+|---|---|---|---|
+| `AprismJEMod` | loaded after extensions | `.aje` | lifecycle, events, typed content, resources |
+| `AprismExtension` | loaded before mods | `.aep` | extension metadata, provider registration, capability declarations |
+
+An `AprismExtension` must not silently emit a `.aje`, and an `AprismJEMod` must not emit an `.aep`. The compiler selects the artifact task from `workType` and fails on mismatches.
 
 ## 3. Core Node Model
 

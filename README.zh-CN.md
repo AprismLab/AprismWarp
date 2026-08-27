@@ -30,6 +30,16 @@ AprismWarp 宿主桥接
 
 AprismWarp 以 [Aprism 契约说明](docs/aprism-contract.md) 中经过源码核验的子集为目标。Aprism 是基于 JavaAgent 的加载运行时，因此 AprismWarp 生成 Aprism Native Mod 构件，并通过 MDL 执行隔离预览；它不替代 Aprism，也不另造一套注入链。
 
+## 新建工程
+
+AprismWarp 在没有打开工程时，首先进入新建向导。用户必须选择：
+
+- Minecraft 版本；
+- Aprism 版本；
+- 工作类型：`AprismJEMod` 或 `AprismExtension`。
+
+`AprismJEMod` 工程编译为 `.aje`；`AprismExtension` 工程编译为 `.aep`，并在 Mod 扫描前扩展 Aprism 运行时。编辑器积木面板和校验配置由工作类型决定。
+
 ## 规划功能
 
 - 保存 AprismWarp 原生积木、IR、资源、目标配置和编辑器元数据的 `.awp` 工程文件。

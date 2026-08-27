@@ -4,10 +4,12 @@
   "title": "AprismWarp Intermediate Representation",
   "type": "object",
   "additionalProperties": false,
-  "required": ["irVersion", "projectId", "target", "capabilities", "declarations", "handlers"],
+  "required": ["irVersion", "projectId", "workType", "target", "capabilities", "declarations", "handlers"],
   "properties": {
     "irVersion": {"type": "integer", "const": 1},
     "projectId": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{1,63}$"},
+    "workType": {"type": "string", "enum": ["AprismJEMod", "AprismExtension"]},
+    "extension": {"type": "object", "additionalProperties": false, "properties": {"type": {"type": "string", "enum": ["loader-support", "api-extension", "platform-adapter", "converter", "ai-extension", "rendering-extension"]}, "aprismRange": {"type": "string", "minLength": 1}, "loaderKey": {"type": "string", "minLength": 1}, "loaderRange": {"type": "string"}, "provides": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}, "depends": {"type": "object", "additionalProperties": {"type": "string"}}, "priority": {"type": "integer"}}, "required": ["type", "aprismRange"]},
     "target": {"type": "object", "required": ["edition", "minecraft", "aprism"], "additionalProperties": false, "properties": {"edition": {"const": "JE"}, "minecraft": {"type": "string"}, "aprism": {"type": "string"}}},
     "capabilities": {"type": "array", "items": {"type": "string", "enum": ["basic", "intermediate", "advanced", "native"]}, "uniqueItems": true},
     "declarations": {"type": "array", "items": {"$ref": "#/$defs/declaration"}},

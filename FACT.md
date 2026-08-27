@@ -12,6 +12,7 @@
 - Upstream snapshots are kept under `upstream/` as visual/interaction research references and must remain traceable to commit IDs.
 - Project source container: `.awp` (AprismWarp Project).
 - Compiled distribution remains `.aje`; `.awp` is never loaded by Minecraft.
+- A no-project launch opens a creation wizard requiring Minecraft version, Aprism version, and work type.
 
 ## 2. Research Decisions
 
@@ -24,6 +25,7 @@
 | D-05 | First target is JE Aprism Native through MDL; Prismate is a compatibility fallback for ordinary Fabric/NeoForge instances. | Aprism and Prismate project facts | [H] |
 | D-06 | Mod generation must be deterministic and produce a normal Aprism `.aje` artifact, not execute arbitrary browser JavaScript in Minecraft. | Aprism manifest and packaging contracts | [H] |
 | D-07 | `.awp` is the editable project container; `.aje` is the generated AprismMod distribution. | Separation of design data and runtime artifact | [H] |
+| D-08 | AprismWarp-native extensions are authored as `AprismExtension` projects and export `.aep`; Java mods are authored as `AprismJEMod` projects and export `.aje`. | Aprism `.aep`/`.aje` contracts | [H] |
 
 ## 3. Upstream Snapshot
 
@@ -53,6 +55,9 @@
 - [NOTE] Initial test invocation failed because the inherited `JAVA_HOME` pointed to a missing JDK; validation used a process-local JDK 21 override and did not change the user environment.
 - [TODO] Resolve Aprism lifecycle instance identity behavior before generating stateful cross-phase code.
 - [TODO] Select the verified JE 26.2 profile and encode it in the `.awp` target schema.
+- [DONE] Defined no-project creation fields: Minecraft version, Aprism version, and `AprismJEMod`/`AprismExtension` work type.
+- [TODO] Implement the no-project creation wizard and work-type-specific editor palettes.
+- [DONE] Added work-type-aware IR validation, schemas, minimal `AprismJEMod` fixture, and extension validation tests.
 - [DONE] Adopted GPL-3.0-only for AprismWarp before importing or modifying TurboWarp scratch-gui code.
 
 ## 5. Acceptance Gates

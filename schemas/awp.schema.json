@@ -4,12 +4,14 @@
   "title": "AprismWarp Project Manifest",
   "type": "object",
   "additionalProperties": true,
-  "required": ["format", "schemaVersion", "projectId", "name", "target", "source"],
+  "required": ["format", "schemaVersion", "projectId", "name", "workType", "target", "source"],
   "properties": {
     "format": {"const": "aprismwarp-project"},
     "schemaVersion": {"type": "integer", "const": 1},
     "projectId": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{1,63}$"},
     "name": {"type": "string", "minLength": 1},
+    "workType": {"type": "string", "enum": ["AprismJEMod", "AprismExtension"]},
+    "workProfile": {"type": "object", "required": ["minecraftVersion", "aprismVersion", "workType"], "properties": {"minecraftVersion": {"type": "string", "minLength": 1}, "aprismVersion": {"type": "string", "minLength": 1}, "workType": {"type": "string", "enum": ["AprismJEMod", "AprismExtension"]}}, "additionalProperties": true},
     "target": {
       "type": "object",
       "required": ["aprism", "edition", "minecraft"],

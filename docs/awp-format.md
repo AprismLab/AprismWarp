@@ -42,6 +42,7 @@ Minimal example:
   "projectId": "example-mod",
   "name": "Example Mod",
   "createdBy": "AprismWarp",
+  "workType": "AprismJEMod",
   "target": {
     "aprism": "v26.0-Alpha.1",
     "edition": "JE",
@@ -56,7 +57,7 @@ Minimal example:
 }
 ```
 
-Required fields are `format`, `schemaVersion`, `projectId`, `name`, `target`, and `source`. Unknown fields must be preserved when possible so additive metadata does not destroy newer projects.
+Required fields are `format`, `schemaVersion`, `projectId`, `name`, `workType`, `target`, and `source`. `workType` is `AprismJEMod` or `AprismExtension`. Unknown fields must be preserved when possible so additive metadata does not destroy newer projects.
 
 ## 4. Native DSL and IR
 
@@ -94,6 +95,7 @@ The same validated IR and resource set should produce byte-equivalent output or 
 - Import `.awp`: validate the container before opening the editor.
 - Importing `.sb3` or Scratch projects: out of scope for v0.1.
 - Export `.aje`: validate target profile, compile IR, package Aprism manifest and mod JAR, and write outside the active MDL instance.
+- Export `.aep`: validate the extension profile, compile the extension manifest and embedded runtime/provider artifacts, and write outside active MDL instances.
 - Reopen `.aje`: not supported as a source import in v0.1; use the original `.awp`.
 
 ## 7. Security Rules

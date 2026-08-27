@@ -1,0 +1,51 @@
+{
+  "irVersion": 1,
+  "projectId": "examplemod",
+  "workType": "AprismJEMod",
+  "target": {
+    "edition": "JE",
+    "minecraft": "26.2",
+    "aprism": "v26.8-Alpha.7"
+  },
+  "capabilities": ["basic"],
+  "declarations": [
+    {
+      "nodeId": "item-widget",
+      "kind": "declaration",
+      "declaration": "item",
+      "id": "examplemod:widget",
+      "maxStack": 16
+    },
+    {
+      "nodeId": "block-lamp",
+      "kind": "declaration",
+      "declaration": "block",
+      "id": "examplemod:lamp",
+      "hardness": 2.0,
+      "resistance": 3.0,
+      "luminance": 12
+    }
+  ],
+  "handlers": [
+    {
+      "nodeId": "init-handler",
+      "kind": "event",
+      "event": "lifecycle.init",
+      "body": [
+        {
+          "nodeId": "startup-log",
+          "kind": "action",
+          "action": "log.info",
+          "message": "ExampleMod initialized"
+        }
+      ]
+    },
+    {
+      "nodeId": "tick-handler",
+      "kind": "event",
+      "event": "game.tick",
+      "stage": "END",
+      "body": []
+    }
+  ]
+}

@@ -36,6 +36,16 @@ The bridge is a desktop/local process boundary. A web page must not receive arbi
 
 AprismWarp targets the verified Aprism subset documented in [aprism-contract.md](docs/aprism-contract.md). Aprism is a JavaAgent-based loader runtime, so AprismWarp generates Aprism-native mod artifacts and uses MDL for isolated execution; it does not replace Aprism or invent a second injection pipeline.
 
+## New Project
+
+When AprismWarp opens without a project, it starts with a creation wizard. The user must select:
+
+- Minecraft version;
+- Aprism version;
+- work type: `AprismJEMod` or `AprismExtension`.
+
+`AprismJEMod` projects compile to `.aje`. `AprismExtension` projects compile to `.aep` and extend the Aprism runtime before mod discovery. The editor palette and validation profile are selected from the work type.
+
 ## Planned Features
 
 - `.awp` project files that preserve AprismWarp-native blocks, IR, resources, target profile, and editor metadata.

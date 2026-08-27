@@ -50,7 +50,7 @@ AprismWarp 以 [Aprism 契约说明](docs/aprism-contract.md) 中经过源码核
 
 ## 许可证
 
-TurboWarp 上游源码只作为界面和交互研究参考。任何实际复制的代码都必须先完成来源和许可证审查；AprismWarp 自有代码的最终许可证需要在发布前单独确定。
+AprismWarp 使用 [GPL-3.0-only](LICENSE)。这与计划复用 TurboWarp `scratch-gui` 的 GPL-3.0 代码兼容。TurboWarp 上游源码仍作为独立跟踪的参考材料，实际导入前必须完成来源审查和记录。
 
 `.awp` 是可编辑工程格式；`.aje` 只在导出时生成，并作为 Aprism 实例中安装的构件。
 

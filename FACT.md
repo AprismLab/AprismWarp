@@ -8,7 +8,7 @@
 - Name: AprismWarp
 - Role: TurboWarp-inspired graphical AprismMod workbench with a local Minecraft host bridge.
 - Parent ecosystem: Aprism, AprismPrismate, AprismRefract, AprismJDK, MDL, Despotes.
-- License target: new AprismWarp code is licensed independently; upstream UI code is not copied until its provenance and license obligations are reviewed.
+- License: GPL-3.0-only. This is compatible with planned reuse of GPL-3.0 TurboWarp scratch-gui UI code.
 - Upstream snapshots are kept under `upstream/` as visual/interaction research references and must remain traceable to commit IDs.
 - Project source container: `.awp` (AprismWarp Project).
 - Compiled distribution remains `.aje`; `.awp` is never loaded by Minecraft.
@@ -53,6 +53,7 @@
 - [NOTE] Initial test invocation failed because the inherited `JAVA_HOME` pointed to a missing JDK; validation used a process-local JDK 21 override and did not change the user environment.
 - [TODO] Resolve Aprism lifecycle instance identity behavior before generating stateful cross-phase code.
 - [TODO] Select the verified JE 26.2 profile and encode it in the `.awp` target schema.
+- [DONE] Adopted GPL-3.0-only for AprismWarp before importing or modifying TurboWarp scratch-gui code.
 
 ## 5. Acceptance Gates
 

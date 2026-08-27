@@ -70,6 +70,6 @@ The full upstream build is intentionally not claimed as complete by this researc
 
 ## License
 
-TurboWarp upstream is a visual and interaction reference. Any copied code must first pass provenance and license review; AprismWarp-owned code will receive a separate license decision before distribution.
+AprismWarp is licensed under [GPL-3.0-only](LICENSE). This keeps the repository compatible with planned reuse of GPL-3.0 code from TurboWarp's `scratch-gui`. TurboWarp upstream remains a separately tracked reference until a source import is reviewed and documented.
 
 <!-- GitHub@NDBlockConnect | BlockConnect@StarsailsClover -->

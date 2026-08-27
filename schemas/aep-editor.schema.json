@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aprismwarp.local/schema/aep-editor/v1",
+  "title": "AprismWarp AEP Editor Capability Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "extensionId", "requires", "capabilities"],
+  "properties": {
+    "schema": {"const": "aprismwarp.aep-editor/v1"},
+    "extensionId": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{1,63}$"},
+    "requires": {"type": "object", "additionalProperties": false, "required": ["aprismRange", "workTypes"], "properties": {"aprismRange": {"type": "string", "minLength": 1}, "minecraft": {"type": "string"}, "workTypes": {"type": "array", "items": {"type": "string", "enum": ["AprismJEMod", "AprismExtension"]}, "minItems": 1, "uniqueItems": true}}},
+    "capabilities": {"type": "array", "items": {"$ref": "#/$defs/capability"}}
+  },
+  "$defs": {
+    "capability": {"type": "object", "additionalProperties": false, "required": ["id", "kind"], "properties": {"id": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{1,63}:[a-z][a-z0-9_-]{1,63}$"}, "kind": {"const": "block-catalog"}, "blocks": {"type": "array", "items": {"$ref": "#/$defs/block"}}}},
+    "block": {"type": "object", "additionalProperties": false, "required": ["id", "category", "shape", "irKind", "irOperation"], "properties": {"id": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{1,63}:[a-z][a-z0-9_-]{1,63}$"}, "category": {"type": "string", "minLength": 1}, "shape": {"type": "string", "enum": ["statement", "reporter", "hat"]}, "irKind": {"type": "string", "enum": ["declaration", "event", "action", "expression"]}, "irOperation": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{1,63}:[a-z][a-z0-9_-]{1,63}$"}, "fields": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "type"], "properties": {"id": {"type": "string"}, "type": {"type": "string", "enum": ["string", "number", "boolean", "resource-path", "resource-key"]}}}}}}
+  }
+}

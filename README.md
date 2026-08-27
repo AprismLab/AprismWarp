@@ -56,6 +56,7 @@ When AprismWarp opens without a project, it starts with a creation wizard. The u
 - MDL instance creation, launch, logs, screenshots, and diagnostics.
 - Despotes-backed in-game observation and test scenarios.
 - Generated Java/Kotlin or Aprism-native source view for advanced users.
+- Optional `.aep` editor capability manifests and `.awe` editor extensions, with explicit permissions and project locks.
 
 ## Explicit Non-Goals for the First Iteration
 

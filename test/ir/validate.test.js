@@ -99,6 +99,23 @@ test('accepts a minimal AprismExtension project without JE content', () => {
     assert.equal(validateIr(ir).valid, true);
 });
 
+test('rejects an unknown work type', () => {
+    const ir = structuredClone(example);
+    ir.workType = 'UnknownProject';
+
+    assertDiagnostic(validateIr(ir), 'AWP-IR-004');
+});
+
+test('rejects extension metadata in AprismJEMod projects', () => {
+    const ir = structuredClone(example);
+    ir.extension = {
+        type: 'api-extension',
+        aprismRange: '>=26.0.0'
+    };
+
+    assertDiagnostic(validateIr(ir), 'AWP-IR-055');
+});
+
 function assertDiagnostic(result, code) {
     assert.equal(result.valid, false);
     assert.ok(result.diagnostics.some(diagnostic => diagnostic.code === code),

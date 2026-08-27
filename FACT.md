@@ -58,6 +58,8 @@
 - [DONE] Defined no-project creation fields: Minecraft version, Aprism version, and `AprismJEMod`/`AprismExtension` work type.
 - [TODO] Implement the no-project creation wizard and work-type-specific editor palettes.
 - [DONE] Added work-type-aware IR validation, schemas, minimal `AprismJEMod` fixture, and extension validation tests.
+- [DONE] Defined the dual extension model: optional declarative `.aep` editor capability manifests and separate permissioned `.awe` editor extensions.
+- [TODO] Implement archive inspection for `.aep` and `.awe` manifests without executing embedded code.
 - [DONE] Adopted GPL-3.0-only for AprismWarp before importing or modifying TurboWarp scratch-gui code.
 
 ## 5. Acceptance Gates

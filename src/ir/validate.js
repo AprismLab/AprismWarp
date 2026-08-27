@@ -68,6 +68,8 @@ function validateIr(ir, options = {}) {
 
     if (ir.workType === 'AprismExtension') {
         validateExtension(ir, report);
+    } else if (ir.extension !== undefined) {
+        report('AWP-IR-055', 'AprismJEMod cannot declare AprismExtension metadata.');
     }
 
     const initHandlers = ir.handlers.filter(handler => isRecord(handler) && handler.event === 'lifecycle.init');

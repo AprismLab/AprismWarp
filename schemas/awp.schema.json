@@ -12,6 +12,7 @@
     "name": {"type": "string", "minLength": 1},
     "workType": {"type": "string", "enum": ["AprismJEMod", "AprismExtension"]},
     "workProfile": {"type": "object", "required": ["minecraftVersion", "aprismVersion", "workType"], "properties": {"minecraftVersion": {"type": "string", "minLength": 1}, "aprismVersion": {"type": "string", "minLength": 1}, "workType": {"type": "string", "enum": ["AprismJEMod", "AprismExtension"]}}, "additionalProperties": true},
+    "extensions": {"type": "object", "additionalProperties": false, "properties": {"aepCapabilities": {"type": "array", "items": {"$ref": "#/$defs/lockedExtension"}, "uniqueItems": true}, "aweEditors": {"type": "array", "items": {"$ref": "#/$defs/lockedExtension"}, "uniqueItems": true}}},
     "target": {
       "type": "object",
       "required": ["aprism", "edition", "minecraft"],
@@ -33,5 +34,8 @@
       "additionalProperties": true
     },
     "resources": {"const": "resources/"}
+  },
+  "$defs": {
+    "lockedExtension": {"type": "object", "additionalProperties": false, "required": ["id", "version", "sha256"], "properties": {"id": {"type": "string", "minLength": 1}, "version": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[a-fA-F0-9]{64}$"}, "capabilities": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}}}
   }
 }

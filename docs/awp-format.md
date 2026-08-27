@@ -43,6 +43,10 @@ Minimal example:
   "name": "Example Mod",
   "createdBy": "AprismWarp",
   "workType": "AprismJEMod",
+  "extensions": {
+    "aepCapabilities": [],
+    "aweEditors": []
+  },
   "target": {
     "aprism": "v26.0-Alpha.1",
     "edition": "JE",
@@ -110,7 +114,29 @@ The same validated IR and resource set should produce byte-equivalent output or 
 
 `schemaVersion` increases only for incompatible format changes. Additive fields remain forward-compatible where possible. The editor must report an unsupported schema clearly and must not overwrite the original file during failed migration.
 
-## 9. Pending Items
+## 9. Extension Locks
+
+The optional `extensions` field locks enabled `.aep` editor capability manifests and `.awe` editor extensions by id, version, and SHA-256. The lock data is part of the reproducible compiler input:
+
+```json
+{
+  "extensions": {
+    "aepCapabilities": [
+      {
+        "id": "example-registry",
+        "version": "1.0.0",
+        "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "capabilities": ["example-registry:custom-content"]
+      }
+    ],
+    "aweEditors": []
+  }
+}
+```
+
+If a lock cannot be resolved locally, the project opens in diagnostic-only mode and export is blocked. See `extension-model.md` for the `.aep` and `.awe` trust boundary.
+
+## 10. Pending Items
 
 - [T] Select the exact JSON schema and validation library.
 - [DONE] Define the AprismWarp-native editor state boundary and block node families.

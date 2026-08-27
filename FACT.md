@@ -89,6 +89,26 @@
 - [DECISION] `.aep` remains backward-compatible: `aprism.extension.json` is
   still the runtime authority; `aprismwarp.editor.json` is optional editor
   metadata. A legacy AEP loads in Aprism but contributes no Warp blocks.
-- [TODO] Extend `PackageAepTask` with an optional editor-manifest input so
-  extension authors can produce this entry through the official Aprism
-  packaging plugin; this is the next cross-repository packaging task.
+- [DONE] Aprism's packaging plugin now accepts optional
+  `aprismPackaging.editorManifestFile` and copies the declarative catalog to
+  the AEP root as `aprismwarp.editor.json`; Aprism runtime ignores it.
+- [DONE] The official package-plugin path now accepts the optional editor
+  manifest and the Aprism TestKit fixture verifies it at the AEP root.
+
+### 2026-08-26 - v26.8-Alpha.8 AEP production-path verification
+
+- [DONE] Cross-repository AEP packaging support: Aprism's
+  `AprismPackagingExtension.editorManifestFile` and `PackageAepTask` copy
+  `aprismwarp.editor.json` to the archive root without changing runtime
+  manifest semantics.
+- [DONE] `PackageAepTaskTest` verifies a generated AEP contains
+  `aprism.extension.json`, `aprismwarp.editor.json`, and the runtime jar.
+- [DONE] AprismWarp combined test command runs 15 tests: 11 IR tests and 4
+  read-only AEP inspection tests, all passing. Aprism packaging TestKit tests
+  pass, and the full Aprism Gradle build/test remains green.
+- [DECISION] AEP v1 remains backward-compatible: the editor catalog is
+  optional, root-level, declarative, bounded to 1 MiB, and never executed.
+  Legacy AEPs remain valid but expose no Warp blocks.
+- [OPEN] `AprismWarp` still needs its `.awp` reader/writer, desktop bridge,
+  compiler, and actual editor palette integration. This Alpha delivers the
+  secure archive-to-catalog foundation, not the complete GUI product.

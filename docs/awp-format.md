@@ -143,4 +143,20 @@ If a lock cannot be resolved locally, the project opens in diagnostic-only mode 
 - [T] Define IR schema and block capability matrix.
 - [T] Implement archive round-trip and zip-bomb tests.
 
+## 11. AEP Capability Catalog Consumption
+
+AprismWarp consumes an optional root-level `aprismwarp.editor.json` from an
+`.aep` archive. The catalog is declarative metadata for palette construction;
+it is not a runtime extension and must never be executed as code.
+
+The read-only inspector returns the flattened block list only when the
+catalog passes all checks: `aprismwarp.aep-editor/v1`, namespaced IDs, known
+block shapes and IR kinds, valid field types, unique capability/block IDs,
+safe ZIP paths, supported compression, and a 1 MiB editor-manifest limit.
+Failures open the project in diagnostic-only mode and produce stable
+`AEP-*` diagnostic codes. A legacy AEP without the file remains installable
+but has no extension-provided blocks.
+
+<!-- GitHub@NDBlockConnect | BlockConnect@StarsailsClover -->
+
 <!-- GitHub@NDBlockConnect | BlockConnect@StarsailsClover -->

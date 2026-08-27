@@ -118,6 +118,14 @@ mod-version.aje
 
 AprismWarp must emit exactly one generated main JAR and a root manifest. It must not place GUI assets, `.awp` files, or host bridge executables inside `.aje`. `[H]`
 
+## 7.1 `.aep` Editor Catalog Contract
+
+An Aprism Extension package may carry an optional root-level `aprismwarp.editor.json`. `[V]` Aprism's official packaging plugin exposes this as `aprismPackaging.editorManifestFile` and `PackageAepTask` writes it alongside `aprism.extension.json` and the extension JAR. `[V]` The Aprism packaging TestKit verifies all three entries in one generated archive.
+
+The Aprism runtime still treats `aprism.extension.json` as the extension authority and ignores the optional editor catalog. AprismWarp reads only the catalog through its ZIP inspector and never loads or executes the extension JAR during catalog inspection. `[V]`
+
+This is the only supported v1 path for an `.aep` to contribute editor blocks. An AEP without the optional catalog remains a valid Aprism extension but contributes no AprismWarp palette entries. `[V]`
+
 ## 8. Mixin and Low-Level Hooks
 
 The current transformer order is:

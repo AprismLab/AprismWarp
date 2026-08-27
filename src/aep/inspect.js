@@ -62,7 +62,7 @@ function findSignatureBackwards(buffer, signature) {
     return -1;
 }
 
-function readEntry(archive, entry) {
+function readEntry(archive, entry, maxOutputBytes = Number.MAX_SAFE_INTEGER) {
     if (entry.localOffset + 30 > archive.length
         || archive.readUInt32LE(entry.localOffset) !== 0x04034b50) {
         throw new Error(`AEP-ARCHIVE-004: local header is invalid for ${entry.name}.`);
@@ -76,10 +76,20 @@ function readEntry(archive, entry) {
     }
     const compressed = archive.subarray(start, end);
     if (entry.method === 0) {
+        if (compressed.length > maxOutputBytes) {
+            throw new Error(`AEP-EDITOR-013: editor manifest exceeds ${maxOutputBytes} bytes after extraction.`);
+        }
         return Buffer.from(compressed);
     }
     if (entry.method === 8) {
-        return zlib.inflateRawSync(compressed);
+        try {
+            return zlib.inflateRawSync(compressed, {maxOutputLength: maxOutputBytes});
+        } catch (error) {
+            if (error.code === 'ERR_BUFFER_TOO_LARGE') {
+                throw new Error(`AEP-EDITOR-013: editor manifest exceeds ${maxOutputBytes} bytes after extraction.`);
+            }
+            throw error;
+        }
     }
     throw new Error(`AEP-ARCHIVE-006: unsupported ZIP compression method ${entry.method}.`);
 }
@@ -185,8 +195,14 @@ function inspectAep(archivePath) {
         }
         let manifest;
         try {
-            manifest = JSON.parse(readEntry(archive, manifestEntry).toString('utf8'));
+            manifest = JSON.parse(
+                readEntry(archive, manifestEntry, MAX_MANIFEST_BYTES).toString('utf8')
+            );
         } catch (error) {
+            if (String(error.message).startsWith('AEP-EDITOR-013:')) {
+                diagnostics.push({code: 'AEP-EDITOR-013', severity: 'error', message: error.message});
+                return {valid: false, manifest: null, blocks: [], diagnostics, entries: names};
+            }
             diagnostics.push({code: 'AEP-EDITOR-012', severity: 'error',
                 message: `editor manifest is invalid JSON: ${error.message}`});
             return {valid: false, manifest: null, blocks: [], diagnostics, entries: names};

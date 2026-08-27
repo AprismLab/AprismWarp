@@ -103,6 +103,9 @@
   manifest semantics.
 - [DONE] `PackageAepTaskTest` verifies a generated AEP contains
   `aprism.extension.json`, `aprismwarp.editor.json`, and the runtime jar.
+- [DONE] Hardened the read-only inspector against forged ZIP size metadata:
+  the 1 MiB editor-manifest limit is enforced on extracted bytes, including
+  deflated entries with a false central-directory size.
 - [DONE] AprismWarp combined test command runs 15 tests: 11 IR tests and 4
   read-only AEP inspection tests, all passing. Aprism packaging TestKit tests
   pass, and the full Aprism Gradle build/test remains green.

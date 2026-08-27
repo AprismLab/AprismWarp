@@ -33,7 +33,9 @@ archive path, malformed ZIP, unsupported compression method, malformed JSON,
 unknown schema, duplicate capability/block id, or invalid block field causes
 the catalog to fail closed.
 
-This is additive and does not require an Aprism `.aep` format break. `[H]` The Aprism runtime scans its root manifest and embedded jars; unrecognized ZIP entries are not consumed by its current extension loader. `[V]` Source: `ExtensionLoader` and `PackageAepTask`. The official packaging-plugin input for this optional file remains a follow-up task.
+This is additive and does not require an Aprism `.aep` format break. `[V]` The Aprism runtime scans its root manifest and embedded jars; `aprismwarp.editor.json` is ignored by the runtime extension loader. `[V]` The official packaging path is `aprismPackaging.editorManifestFile`, which writes the file at the AEP root through `PackageAepTask`. Sources: Aprism `ExtensionLoader`, `AprismPackagingExtension`, `PackageAepTask`, and `PackageAepTaskTest`.
+
+The catalog file is a companion declaration, not a replacement for `aprism.extension.json`: the latter remains the runtime authority for extension id, type, compatibility, dependencies, priority, and entrypoint.
 
 ## 2. AEP Editor Capability Manifest
 

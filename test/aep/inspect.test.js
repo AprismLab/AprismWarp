@@ -113,3 +113,16 @@ test('rejects malformed editor JSON and oversized manifests', () => {
     assert.ok(inspectAep(bad).diagnostics.some(item => item.code === 'AEP-EDITOR-011'));
     fs.rmSync(bad, {force: true});
 });
+
+test('rejects a deflated manifest that expands beyond the extraction limit', () => {
+    const file = path.join(process.env.TEMP || process.cwd(), 'expanded-editor.aep');
+    const archive = zip([['aprismwarp.editor.json', 'x'.repeat(1024 * 1024 + 1)]]);
+    const centralOffset = archive.lastIndexOf(Buffer.from([0x50, 0x4b, 0x01, 0x02]));
+    archive.writeUInt32LE(1, centralOffset + 24);
+    fs.writeFileSync(file, archive);
+
+    const result = inspectAep(file);
+    assert.equal(result.valid, false);
+    assert.ok(result.diagnostics.some(item => item.code === 'AEP-EDITOR-013'));
+    fs.rmSync(file, {force: true});
+});

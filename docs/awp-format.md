@@ -143,6 +143,8 @@ If a lock cannot be resolved locally, the project opens in diagnostic-only mode 
 - [T] Define IR schema and block capability matrix.
 - [T] Implement archive round-trip and zip-bomb tests.
 
+The initial implementation is dependency-free and uses deterministic stored ZIP entries. It validates CRC/size metadata, rejects encrypted or unsupported compression entries, enforces per-entry and total archive limits, and verifies `workType` plus target-version consistency between `awp.json` and `ir/project.json`.
+
 ## 11. AEP Capability Catalog Consumption
 
 AprismWarp consumes an optional root-level `aprismwarp.editor.json` from an

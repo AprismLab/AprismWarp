@@ -50,6 +50,7 @@
 - [TODO] Add generated-artifact tests and a real `.aje` integration test.
 - [DONE] Adopted `.awp` as the editable AprismWarp project extension and documented its container format.
 - [TODO] Implement `.awp` reader/writer with schema validation and deterministic archive ordering.
+- [DONE] Added a dependency-free `.awp` ZIP reader/writer with deterministic stored entries, CRC checks, path safety, size limits, and manifest/IR consistency checks.
 - [DONE] Completed a source-first Aprism contract map for the AprismWarp target subset.
 - [DONE] Verified Aprism core tests with Gradle 9.5.1 and JDK 21: `aprism-api`, `aprism-manifest`, `aprism-loader-core`, and `aprism-packaging` passed.
 - [NOTE] Initial test invocation failed because the inherited `JAVA_HOME` pointed to a missing JDK; validation used a process-local JDK 21 override and did not change the user environment.

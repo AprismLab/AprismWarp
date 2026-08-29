@@ -6,12 +6,13 @@
   "license": "GPL-3.0-only",
   "type": "commonjs",
   "scripts": {
-    "test": "node --test test/ir/validate.test.js test/aep/inspect.test.js test/awp/archive.test.js test/extension/manifest.test.js test/compile/aep.test.js",
+    "test": "node --test test/ir/validate.test.js test/aep/inspect.test.js test/awp/archive.test.js test/extension/manifest.test.js test/extension/lock.test.js test/compile/aep.test.js",
     "validate:example": "node scripts/validate-example.js",
     "test:aep": "node --test test/aep/inspect.test.js",
     "inspect:aep": "node scripts/inspect-aep.js",
     "test:awp": "node --test test/awp/archive.test.js",
     "test:extension": "node --test test/extension/manifest.test.js",
+    "test:lock": "node --test test/extension/lock.test.js",
     "test:compile": "node --test test/compile/aep.test.js",
     "generate:aep": "node scripts/generate-aep.js"
   },

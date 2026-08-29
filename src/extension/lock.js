@@ -1,0 +1,146 @@
+'use strict';
+
+const crypto = require('node:crypto');
+const fs = require('node:fs');
+const path = require('node:path');
+
+/**
+ * Computes the lowercase hex SHA-256 of the given buffer or file contents.
+ *
+ * @param {Buffer|string} input buffer to hash or a filesystem path
+ * @returns {string} 64-character lowercase hex digest
+ */
+function sha256Hex(input) {
+    const buffer = Buffer.isBuffer(input) ? input : fs.readFileSync(input);
+    return crypto.createHash('sha256').update(buffer).digest('hex');
+}
+
+const SHA256_PATTERN = /^[a-fA-F0-9]{64}$/;
+const LOCK_ID_PATTERN = /^[a-z][a-z0-9_-]{1,63}$/;
+
+/**
+ * Returns the array of AEP capability locks recorded in an AWP project
+ * manifest, or an empty array when no locks are declared. Locks with
+ * malformed ids or non-64-character hashes are silently skipped.
+ *
+ * @param {object} manifest parsed AWP manifest
+ * @returns {Array<{id: string, version: string, sha256: string, capabilities: string[]}>}
+ */
+function getAepLocks(manifest) {
+    const locks = manifest && manifest.extensions && manifest.extensions.aepCapabilities;
+    if (!Array.isArray(locks)) return [];
+    const result = [];
+    for (const lock of locks) {
+        if (!lock || typeof lock.id !== 'string' || !LOCK_ID_PATTERN.test(lock.id)) continue;
+        if (typeof lock.sha256 !== 'string' || !SHA256_PATTERN.test(lock.sha256)) continue;
+        result.push({
+            id: lock.id,
+            version: typeof lock.version === 'string' ? lock.version : '',
+            sha256: lock.sha256.toLowerCase(),
+            capabilities: Array.isArray(lock.capabilities) ? lock.capabilities.slice() : []
+        });
+    }
+    return result;
+}
+
+/**
+ * Verifies that the SHA-256 of a generated AEP file matches a lock entry
+ * in the .awp project's `extensions.aepCapabilities` array. The id
+ * comparison is done against the `aprism.extension.json.extensionId` field
+ * inside the AEP. The function never throws; it returns a result object
+ * so callers can surface diagnostics without exception-handling.
+ *
+ * @param {string} aepPath path to the generated .aep
+ * @param {object} manifest parsed AWP manifest
+ * @returns {{checked: boolean, matched: boolean, lock: object|null, expected: string|null, actual: string|null, diagnostics: Array<object>}}
+ */
+function verifyAepLock(aepPath, manifest) {
+    const diagnostics = [];
+    if (!aepPath) {
+        diagnostics.push({code: 'AEP-LOCK-001', severity: 'error', message: 'AEP path is required.'});
+        return {checked: false, matched: false, lock: null, expected: null, actual: null, diagnostics};
+    }
+    const locks = getAepLocks(manifest);
+    if (locks.length === 0) {
+        return {checked: false, matched: false, lock: null, expected: null, actual: null, diagnostics};
+    }
+    let actualHash;
+    try {
+        actualHash = sha256Hex(aepPath);
+    } catch (error) {
+        diagnostics.push({code: 'AEP-LOCK-002', severity: 'error', message: `failed to hash AEP: ${error.message}`});
+        return {checked: true, matched: false, lock: null, expected: null, actual: null, diagnostics};
+    }
+    let aepManifest = null;
+    try {
+        const {inspectArchive} = require('../awp/archive');
+        const files = inspectArchive(fs.readFileSync(aepPath));
+        const manifestBytes = files.get('aprism.extension.json');
+        if (manifestBytes) aepManifest = JSON.parse(manifestBytes.toString('utf8'));
+    } catch (error) {
+        diagnostics.push({code: 'AEP-LOCK-003', severity: 'error', message: `failed to read AEP manifest: ${error.message}`});
+    }
+    const aepId = aepManifest && typeof aepManifest.extensionId === 'string' ? aepManifest.extensionId : '';
+    for (const lock of locks) {
+        if (lock.id !== aepId) {
+            diagnostics.push({
+                code: 'AEP-LOCK-004', severity: 'warning',
+                message: `lock id "${lock.id}" does not match AEP extensionId "${aepId}".`
+            });
+            continue;
+        }
+        if (lock.sha256 === actualHash) {
+            return {checked: true, matched: true, lock, expected: lock.sha256, actual: actualHash, diagnostics};
+        }
+        diagnostics.push({
+            code: 'AEP-LOCK-005', severity: 'error',
+            message: `AEP hash mismatch for ${lock.id}: expected ${lock.sha256}, got ${actualHash}.`
+        });
+        return {checked: true, matched: false, lock, expected: lock.sha256, actual: actualHash, diagnostics};
+    }
+    return {checked: true, matched: false, lock: null, expected: null, actual: actualHash, diagnostics};
+}
+
+/**
+ * Recomputes and rewrites the AWP project so its
+ * `extensions.aepCapabilities` entries carry the SHA-256 of the generated
+ * AEP file. Returns the new lock list. Existing locks whose id is
+ * different from the AEP extensionId are preserved. An entry with the
+ * matching id is updated in place; if no such entry exists, a new one is
+ * inserted.
+ *
+ * @param {object} manifest parsed AWP manifest (mutated in place)
+ * @param {string} aepId the extensionId inside the AEP manifest
+ * @param {string} version extension version recorded by the AEP manifest
+ * @param {string} aepHash lowercase hex SHA-256 of the AEP file
+ * @param {string[]} [capabilities] optional capability ids to associate
+ * @returns {Array<object>} the updated `aepCapabilities` array
+ */
+function applyAepLock(manifest, aepId, version, aepHash, capabilities) {
+    if (!LOCK_ID_PATTERN.test(aepId)) {
+        throw new Error('AEP-LOCK-007: aepId must be a lowercase Aprism identifier.');
+    }
+    if (!SHA256_PATTERN.test(aepHash)) {
+        throw new Error('AEP-LOCK-006: aepHash must be a 64-character hex SHA-256.');
+    }
+    if (!manifest.extensions || typeof manifest.extensions !== 'object') {
+        manifest.extensions = {aepCapabilities: [], aweEditors: []};
+    }
+    const normalisedHash = aepHash.toLowerCase();
+    const list = Array.isArray(manifest.extensions.aepCapabilities)
+        ? manifest.extensions.aepCapabilities.slice()
+        : [];
+    const index = list.findIndex(entry => entry && entry.id === aepId);
+    const next = {
+        id: aepId,
+        version: version || '',
+        sha256: normalisedHash,
+        capabilities: Array.isArray(capabilities) ? capabilities.slice() : (index >= 0 ? (list[index].capabilities || []).slice() : [])
+    };
+    if (index >= 0) list[index] = next;
+    else list.push(next);
+    manifest.extensions.aepCapabilities = list;
+    return list;
+}
+
+module.exports = {sha256Hex, getAepLocks, verifyAepLock, applyAepLock};

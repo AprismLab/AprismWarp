@@ -2,6 +2,13 @@
 
 const path = require('node:path');
 const {generateAep, generateAepAndLock} = require('../src/compile/aep');
+const {configureSchemaPaths} = require('../src/awp/archive');
+
+const repoRoot = path.resolve(__dirname, '..');
+configureSchemaPaths({
+    awpManifestSchemaPath: path.join(repoRoot, 'schemas', 'awp.schema.json'),
+    irSchemaPath: path.join(repoRoot, 'schemas', 'ir.schema.json')
+});
 
 function usage() {
     console.error('Usage: node scripts/generate-aep.js <input.awp> <output.aep> [--lock] [--out <locked.awp>]');

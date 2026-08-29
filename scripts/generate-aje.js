@@ -2,6 +2,13 @@
 
 const path = require('node:path');
 const {generateAje, generateAjeAndLock, generateAjeAndBuild} = require('../src/compile/aje');
+const {configureSchemaPaths} = require('../src/awp/archive');
+
+const repoRoot = path.resolve(__dirname, '..');
+configureSchemaPaths({
+    awpManifestSchemaPath: path.join(repoRoot, 'schemas', 'awp.schema.json'),
+    irSchemaPath: path.join(repoRoot, 'schemas', 'ir.schema.json')
+});
 
 function usage() {
     console.error('Usage: node scripts/generate-aje.js <input.awp> <output.aje>');

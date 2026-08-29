@@ -4,11 +4,23 @@ const fs = require('node:fs');
 const path = require('node:path');
 const zlib = require('node:zlib');
 const {validateIr} = require('../ir/validate');
+const {validateFile} = require('../schema/validate');
 
 const AWP_MANIFEST = 'awp.json';
 const IR_PATH = 'ir/project.json';
 const MAX_ENTRY_BYTES = 16 * 1024 * 1024;
 const MAX_ARCHIVE_BYTES = 128 * 1024 * 1024;
+let awpManifestSchemaPath = null;
+let irSchemaPath = null;
+
+function configureSchemaPaths(options) {
+    if (options && options.awpManifestSchemaPath) awpManifestSchemaPath = options.awpManifestSchemaPath;
+    if (options && options.irSchemaPath) irSchemaPath = options.irSchemaPath;
+}
+
+function schemaErrorMessage(diagnostics) {
+    return diagnostics.map(d => `${d.path} ${d.code} ${d.message}`).join('; ');
+}
 
 function isSafeEntryName(name) {
     return typeof name === 'string'
@@ -141,6 +153,14 @@ function validateProject(manifest, ir) {
     }
     const irResult = validateIr(ir, {mode: 'export'});
     if (!irResult.valid) throw new Error(`AWP-IR-100: ${irResult.diagnostics.map(d => d.code).join(', ')}`);
+    if (awpManifestSchemaPath) {
+        const schemaResult = validateFile(awpManifestSchemaPath, manifest);
+        if (!schemaResult.valid) throw new Error(`AWP-SCHEMA-001: ${schemaErrorMessage(schemaResult.errors)}`);
+    }
+    if (irSchemaPath) {
+        const schemaResult = validateFile(irSchemaPath, ir);
+        if (!schemaResult.valid) throw new Error(`AWP-SCHEMA-002: ${schemaErrorMessage(schemaResult.errors)}`);
+    }
 }
 
 /**
@@ -199,13 +219,20 @@ function centralHeader(entry) {
 
 /**
  * Writes a deterministic stored AWP archive. Values are UTF-8 JSON or Buffers.
+ * Pass {@code options.skipValidation: true} to write an archive that would
+ * not survive {@code readAwp} (used for negative-path tests).
+ *
  * @param {string} archivePath destination path
  * @param {{manifest: object, ir: object, files?: Map<string, Buffer|Uint8Array>}} project project data
+ * @param {object} [options]
+ * @param {boolean} [options.skipValidation=false] skip JSON Schema and IR validation
  */
-function writeAwp(archivePath, project) {
+function writeAwp(archivePath, project, options = {}) {
     const manifest = project.manifest;
     const ir = project.ir;
-    validateProject(manifest, ir);
+    if (!options.skipValidation) {
+        validateProject(manifest, ir);
+    }
     const values = new Map(project.files || []);
     values.set(AWP_MANIFEST, Buffer.from(JSON.stringify(manifest, null, 2) + '\n'));
     values.set(IR_PATH, Buffer.from(JSON.stringify(ir, null, 2) + '\n'));
@@ -233,4 +260,4 @@ function writeAwp(archivePath, project) {
     fs.writeFileSync(archivePath, Buffer.concat([...local, directory, eocd]));
 }
 
-module.exports = {inspectArchive, readAwp, writeAwp, MAX_ENTRY_BYTES, MAX_ARCHIVE_BYTES};
+module.exports = {inspectArchive, readAwp, writeAwp, configureSchemaPaths, MAX_ENTRY_BYTES, MAX_ARCHIVE_BYTES};

@@ -5,8 +5,8 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
-const {generateAep} = require('../../src/compile/aep');
-const {inspectArchive} = require('../../src/awp/archive');
+const {generateAep, generateAepAndLock} = require('../../src/compile/aep');
+const {inspectArchive, readAwp, writeAwp} = require('../../src/awp/archive');
 
 function buildAwpFixture(workspaceDir) {
     const manifest = {
@@ -287,6 +287,91 @@ test('rejects an AWP missing the pre-compiled extension JAR', () => {
             () => generateAep(awpPath, path.join(dir, 'output.aep')),
             /AWP-COMPILE-006/
         );
+    } finally {
+        fs.rmSync(dir, {recursive: true, force: true});
+    }
+});
+
+test('generateAepAndLock backfills the SHA-256 lock and rewrites the AWP', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'aprismwarp-aep-lock-'));
+    try {
+        const {awpPath} = buildAwpFixture(dir);
+        const aepPath = path.join(dir, 'output.aep');
+        const result = generateAepAndLock(awpPath, aepPath);
+        assert.ok(result.lock, 'lock entry must be returned');
+        assert.equal(result.lock.id, 'example-extension');
+        assert.equal(result.lock.sha256.length, 64);
+        assert.ok(result.manifest.extensions.aepCapabilities.some(entry =>
+            entry.id === 'example-extension' && entry.sha256 === result.lock.sha256));
+        const reloaded = readAwp(awpPath);
+        const stored = reloaded.manifest.extensions.aepCapabilities.find(entry => entry.id === 'example-extension');
+        assert.ok(stored, 'lock must be persisted in the rewritten AWP');
+        assert.equal(stored.sha256, result.lock.sha256);
+    } finally {
+        fs.rmSync(dir, {recursive: true, force: true});
+    }
+});
+
+test('generateAepAndLock records capabilities from the editor manifest', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'aprismwarp-aep-cap-'));
+    try {
+        const {awpPath} = buildAwpFixture(dir);
+        // Rewrite the AWP so it carries an aprismwarp.editor.json with capabilities
+        const project = readAwp(awpPath);
+        const editor = JSON.parse(project.files.get('editor/project.json').toString('utf8'));
+        const aepManifest = {
+            schema: 'aprismwarp.aep-editor/v1',
+            extensionId: project.manifest.projectId,
+            requires: {aprismRange: '>=26.8.0', workTypes: ['AprismExtension']},
+            capabilities: [
+                {id: 'example-extension:capability-a', kind: 'block-catalog', blocks: []},
+                {id: 'example-extension:capability-b', kind: 'block-catalog', blocks: []}
+            ]
+        };
+        project.files.set(
+            'aprismwarp.editor.json',
+            Buffer.from(JSON.stringify(aepManifest, null, 2) + '\n')
+        );
+        writeAwp(awpPath, project);
+        const aepPath = path.join(dir, 'output.aep');
+        const result = generateAepAndLock(awpPath, aepPath);
+        assert.deepEqual(result.lock.capabilities, [
+            'example-extension:capability-a',
+            'example-extension:capability-b'
+        ]);
+    } finally {
+        fs.rmSync(dir, {recursive: true, force: true});
+    }
+});
+
+test('generateAepAndLock writes the locked AWP to a separate path when awpOutPath is given', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'aprismwarp-aep-out-'));
+    try {
+        const {awpPath} = buildAwpFixture(dir);
+        const aepPath = path.join(dir, 'output.aep');
+        const outPath = path.join(dir, 'project.locked.awp');
+        const original = fs.readFileSync(awpPath);
+        generateAepAndLock(awpPath, aepPath, {awpOutPath: outPath});
+        assert.ok(fs.existsSync(outPath), 'locked AWP must exist at out path');
+        assert.ok(fs.readFileSync(awpPath).equals(original), 'source AWP must remain unchanged');
+        const reloaded = readAwp(outPath);
+        assert.ok(reloaded.manifest.extensions.aepCapabilities.some(entry => entry.id === 'example-extension'));
+    } finally {
+        fs.rmSync(dir, {recursive: true, force: true});
+    }
+});
+
+test('generateAepAndLock returns the updated manifest without writing when updateAwp is false', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'aprismwarp-aep-dry-'));
+    try {
+        const {awpPath} = buildAwpFixture(dir);
+        const aepPath = path.join(dir, 'output.aep');
+        const original = fs.readFileSync(awpPath);
+        const result = generateAepAndLock(awpPath, aepPath, {updateAwp: false});
+        assert.ok(result.lock, 'lock must be returned even when dry run');
+        assert.ok(fs.readFileSync(awpPath).equals(original), 'AWP must not be rewritten in dry run');
+        assert.ok(result.manifest.extensions.aepCapabilities.some(entry =>
+            entry.id === 'example-extension' && entry.sha256 === result.lock.sha256));
     } finally {
         fs.rmSync(dir, {recursive: true, force: true});
     }

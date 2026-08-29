@@ -2,8 +2,9 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const {readAwp} = require('../awp/archive');
+const {readAwp, writeAwp} = require('../awp/archive');
 const {buildExtensionManifest, validateExtensionManifest} = require('../extension/manifest');
+const {sha256Hex, getAepLocks, verifyAepLock, applyAepLock} = require('../extension/lock');
 
 const AEP_PATH = 'aprism.extension.json';
 const JAR_PATH = 'build/extension.jar';
@@ -101,6 +102,86 @@ function generateAep(awpPath, aepPath, options = {}) {
     return {manifest, entries: Object.keys(entries)};
 }
 
+/**
+ * Compiles an .awp project to .aep and writes the resulting AEP hash back
+ * into the project's `extensions.aepCapabilities` lock table. The .awp
+ * archive is then re-serialised at `options.awpOutPath` (or the original
+ * `awpPath` by default) with the updated lock.
+ *
+ * When `options.updateAwp` is `false` the AWP is read but not rewritten; the
+ * caller receives the updated manifest in the result and is responsible for
+ * any persistence. The default is `true`.
+ *
+ * @param {string} awpPath source .awp project archive
+ * @param {string} aepPath destination path for the generated .aep
+ * @param {object} [options]
+ * @param {string} [options.awpOutPath] path to rewrite the .awp to
+ * @param {boolean} [options.updateAwp=true] whether to rewrite the .awp
+ * @param {string[]} [options.capabilities] capability ids to associate
+ * @returns {{manifest: object, lock: object, aepPath: string, awpPath: string}}
+ */
+function generateAepAndLock(awpPath, aepPath, options = {}) {
+    const updateAwp = options.updateAwp !== false;
+    const awpOutPath = options.awpOutPath || awpPath;
+    const project = readEditorMetadata(awpPath);
+    const capabilityIds = collectCapabilityIds(project.files.get(EDITOR_MANIFEST_PATH));
+    generateAep(awpPath, aepPath, options);
+
+    const aepHash = sha256Hex(aepPath);
+    const aepFiles = inspectAepEntries(aepPath);
+    const extensionId = aepFiles && aepFiles.manifest ? aepFiles.manifest.extensionId : project.manifest.projectId;
+    const version = aepFiles && aepFiles.manifest ? aepFiles.manifest.version : '';
+
+    const manifestCopy = JSON.parse(JSON.stringify(project.manifest));
+    applyAepLock(manifestCopy, extensionId, version, aepHash, capabilityIds);
+    const verification = verifyAepLock(aepPath, manifestCopy);
+    if (!verification.matched) {
+        throw new Error('AWP-LOCK-BACKFILL-001: lock backfill failed verification: ' +
+            verification.diagnostics.map(d => d.message).join('; '));
+    }
+    const lock = getAepLocks(manifestCopy).find(entry => entry.id === extensionId) || null;
+
+    if (updateAwp) {
+        const projectCopy = {
+            manifest: manifestCopy,
+            ir: project.ir,
+            files: project.files
+        };
+        writeAwp(awpOutPath, projectCopy);
+    }
+
+    return {manifest: manifestCopy, lock, aepPath, awpPath: awpOutPath};
+}
+
+function collectCapabilityIds(editorCatalog) {
+    if (!editorCatalog) return [];
+    try {
+        const parsed = JSON.parse(editorCatalog.toString('utf8'));
+        if (!parsed || !Array.isArray(parsed.capabilities)) return [];
+        const ids = [];
+        for (const capability of parsed.capabilities) {
+            if (capability && typeof capability.id === 'string' && capability.id.trim()) {
+                ids.push(capability.id.trim());
+            }
+        }
+        return ids;
+    } catch (error) {
+        return [];
+    }
+}
+
+function inspectAepEntries(aepPath) {
+    const {inspectArchive} = require('../awp/archive');
+    const files = inspectArchive(fs.readFileSync(aepPath));
+    const manifestBytes = files.get(AEP_PATH);
+    if (!manifestBytes) return {manifest: null, files: []};
+    try {
+        return {manifest: JSON.parse(manifestBytes.toString('utf8')), files: [...files.keys()]};
+    } catch (error) {
+        throw new Error(`AWP-LOCK-BACKFILL-002: cannot parse AEP manifest: ${error.message}`);
+    }
+}
+
 function writeAep(aepPath, aepFiles) {
     const path = require('node:path');
     if (!Buffer.isBuffer && !path) throw new Error('AWP-COMPILE-008: node modules unavailable.');
@@ -185,4 +266,4 @@ function buildCentralHeader(entry) {
     return header;
 }
 
-module.exports = {generateAep, readEditorMetadata, AEP_PATH, JAR_PATH, EDITOR_MANIFEST_PATH};
+module.exports = {generateAep, generateAepAndLock, readEditorMetadata, AEP_PATH, JAR_PATH, EDITOR_MANIFEST_PATH};

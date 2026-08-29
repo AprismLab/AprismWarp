@@ -102,6 +102,24 @@ The same validated IR and resource set should produce byte-equivalent output or 
 - Export `.aep`: validate the extension profile, compile the extension manifest and embedded runtime/provider artifacts, and write outside active MDL instances.
 - Reopen `.aje`: not supported as a source import in v0.1; use the original `.awp`.
 
+### 6.1 Java Build Pipeline
+
+The `--build` flag in `scripts/generate-aje.js` triggers the Java generator. The pipeline is:
+
+```text
+.awp -> readAwp(awpPath)
+     -> requireModJar(awpPath)
+     -> generateJavaSource(ir, {entryClass})
+     -> compileJava(source, classDir, {apiClasspath})
+     -> jarJava(classDir, modJarPath)
+     -> assembleAje(awpPath, ajePath, {modJar})
+     -> applyAjeLock(manifest, id, version, aepHash)
+```
+
+When the AWP supplies a pre-compiled `build/mod.jar` entry, the build step is skipped and the existing jar is embedded. When `--build` is supplied, the build step is forced even if the AWP already contains a jar.
+
+Generated source targets `com.aprism.api.IAprismMod`, `com.aprism.api.AprismContext`, and the typed registries `getItemRegistry()` / `getBlockRegistry()`. Mods that need typed registrations call these directly; calls that return `UnsupportedOperationException` indicate a missing platform adapter, not a generation failure.
+
 ## 7. Security Rules
 
 1. Reject ZIP path traversal, absolute paths, duplicate normalized entries, and excessive decompression sizes.

@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const {readAwp, writeAwp} = require('../awp/archive');
 const {sha256Hex, getAjeLocks, verifyAjeLock, applyAjeLock} = require('../extension/lock');
@@ -433,4 +434,85 @@ function buildCentralHeader(entry) {
     return header;
 }
 
-module.exports = {generateAje, generateAjeAndLock, readModEditorMetadata, buildModManifest, AJE_MANIFEST, MOD_JAR_PATH};
+/**
+ * Compiles the .awp project's IR into a runnable mod main JAR by
+ * generating Java source, invoking javac, and packaging the resulting
+ * class files. The work is performed in a fresh temporary directory
+ * that is removed on success.
+ *
+ * @param {string} awpPath path to the source .awp project archive
+ * @param {object} [options]
+ * @param {string} [options.workDir] directory used for scratch output
+ * @param {string} [options.apiJar] path to the Aprism API jar
+ * @param {string} [options.javac] path to the javac binary
+ * @returns {{modJar: Buffer, entryClass: string, source: string}}
+ */
+function produceModJar(awpPath, options = {}) {
+    const project = readModEditorMetadata(awpPath);
+    const java = require('./java');
+    if (!java.isJavacAvailable(options.javac)) {
+        const err = new Error('javac is not available; cannot build mod main jar');
+        err.code = 'AJE-BUILD-001';
+        err.statusCode = 503;
+        throw err;
+    }
+    const apiJar = options.apiJar || java.resolveAprismApiJar(options.workDir || process.cwd());
+    if (!apiJar) {
+        const err = new Error('Aprism API jar not found; cannot build mod main jar');
+        err.code = 'AJE-BUILD-002';
+        err.statusCode = 503;
+        throw err;
+    }
+    const entryClass = (project.editor && typeof project.editor.entrypoint === 'string' && project.editor.entrypoint.trim())
+        ? project.editor.entrypoint.trim()
+        : java.defaultEntryClassName(project.manifest.projectId);
+    const source = java.generateJavaSource(project.ir, {entryClass});
+    const workDir = options.workDir || fs.mkdtempSync(path.join(os.tmpdir(), 'aprismwarp-aje-build-'));
+    const classDir = path.join(workDir, 'classes');
+    const jarPath = path.join(workDir, `${project.manifest.projectId}.jar`);
+    try {
+        java.compileJava(source, classDir, {apiClasspath: apiJar, javac: options.javac});
+        java.jarJava(classDir, jarPath, {entryClass});
+        return {modJar: fs.readFileSync(jarPath), entryClass, source};
+    } finally {
+        fs.rmSync(workDir, {recursive: true, force: true});
+    }
+}
+
+/**
+ * Compiles an .awp project to .aje. When {@link options.build} is true
+ * (or the AWP does not include a pre-built {@code build/mod.jar}), the
+ * Java generator is invoked to produce a fresh mod main JAR first.
+ * The full AJE lock workflow is still applied.
+ *
+ * @param {string} awpPath source .awp project archive
+ * @param {string} ajePath destination path for the generated .aje
+ * @param {object} [options]
+ * @param {string} [options.awpOutPath] path to rewrite the .awp to
+ * @param {boolean} [options.updateAwp=true] whether to rewrite the .awp
+ * @param {boolean} [options.build] force a Java build of the mod main jar
+ * @param {string} [options.apiJar] path to the Aprism API jar
+ * @param {string} [options.javac] path to the javac binary
+ * @returns {{manifest: object, lock: object, ajePath: string, awpPath: string, checksumsPath: string, built: boolean}}
+ */
+function generateAjeAndBuild(awpPath, ajePath, options = {}) {
+    const project = readModEditorMetadata(awpPath);
+    const hasModJar = project.files.get(MOD_JAR_PATH);
+    const shouldBuild = options.build === true || !hasModJar;
+    const overrides = Object.assign({}, options);
+    if (shouldBuild) {
+        const built = produceModJar(awpPath, options);
+        overrides.modJar = built.modJar;
+    }
+    const lockResult = generateAjeAndLock(awpPath, ajePath, overrides);
+    return {
+        manifest: lockResult.manifest,
+        lock: lockResult.lock,
+        ajePath: lockResult.ajePath,
+        awpPath: lockResult.awpPath,
+        checksumsPath: lockResult.checksumsPath,
+        built: shouldBuild
+    };
+}
+
+module.exports = {generateAje, generateAjeAndLock, generateAjeAndBuild, produceModJar, readModEditorMetadata, buildModManifest, AJE_MANIFEST, MOD_JAR_PATH};

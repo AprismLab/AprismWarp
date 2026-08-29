@@ -1,30 +1,36 @@
 'use strict';
 
 const path = require('node:path');
-const {generateAje, generateAjeAndLock} = require('../src/compile/aje');
+const {generateAje, generateAjeAndLock, generateAjeAndBuild} = require('../src/compile/aje');
 
 function usage() {
-    console.error('Usage: node scripts/generate-aje.js <input.awp> <output.aje> [--lock] [--out <locked.awp>]');
+    console.error('Usage: node scripts/generate-aje.js <input.awp> <output.aje>');
+    console.error('       [--lock] [--out <locked.awp>]');
+    console.error('       [--build] [--api-jar <aprism-api.jar>] [--javac <javac-bin>]');
     process.exitCode = 2;
 }
 
 function parseArgs(argv) {
-    const positional = [];
-    let lock = false;
-    let out = null;
+    const out = {
+        positional: [],
+        lock: false,
+        build: false,
+        out: null,
+        apiJar: null,
+        javac: null
+    };
     for (let i = 2; i < argv.length; i += 1) {
         const arg = argv[i];
-        if (arg === '--lock') {
-            lock = true;
-        } else if (arg === '--out') {
-            out = argv[++i];
-        } else if (arg === '--help' || arg === '-h') {
-            return null;
-        } else {
-            positional.push(arg);
-        }
+        if (arg === '--lock') out.lock = true;
+        else if (arg === '--build') out.build = true;
+        else if (arg === '--out') out.out = argv[++i];
+        else if (arg === '--api-jar') out.apiJar = argv[++i];
+        else if (arg === '--javac') out.javac = argv[++i];
+        else if (arg === '--help' || arg === '-h') return null;
+        else positional.push(arg);
     }
-    return {positional, lock, out};
+    out.positional = out.positional;
+    return out;
 }
 
 function main(argv) {
@@ -45,9 +51,19 @@ function main(argv) {
             console.log(`AJE generated: ${ajePath}`);
             console.log(`Lock entry id=${result.lock.id} sha256=${result.lock.sha256}`);
             if (args.out) console.log(`Locked AWP written: ${args.out}`);
+        } else if (args.build) {
+            const result = generateAjeAndBuild(awpPath, ajePath, {
+                awpOutPath: args.out,
+                apiJar: args.apiJar,
+                javac: args.javac
+            });
+            console.log(`AJE generated: ${ajePath}`);
+            if (result.built) console.log('Mod main jar was built from IR via javac.');
+            for (const entry of result.entries || []) console.log(`  ${entry}`);
+            if (result.checksumsPath) console.log(`Checksums: ${result.checksumsPath}`);
         } else {
             if (args.out) {
-                console.error('generate-aje: --out requires --lock.');
+                console.error('generate-aje: --out requires --lock or --build.');
                 process.exitCode = 1;
                 return;
             }

@@ -191,8 +191,16 @@ function generateJavaSource(ir, options = {}) {
         throw new Error('IR must be an object.');
     }
     const entryClass = options.entryClass || defaultEntryClassName(ir.projectId);
-    const packageName = generatedPackage();
-    const className = entryClass.split('.').pop();
+    let packageName;
+    let className;
+    const lastDot = entryClass.lastIndexOf('.');
+    if (lastDot > 0) {
+        packageName = entryClass.substring(0, lastDot);
+        className = entryClass.substring(lastDot + 1);
+    } else {
+        packageName = generatedPackage();
+        className = entryClass;
+    }
     const projectId = String(ir.projectId || 'mod');
 
     const out = [];

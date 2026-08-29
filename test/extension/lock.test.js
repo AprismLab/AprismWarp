@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
-const {sha256Hex, getAepLocks, verifyAepLock, applyAepLock} = require('../../src/extension/lock');
+const {sha256Hex, getAepLocks, verifyAepLock, verifyAepLockForAwp, applyAepLock} = require('../../src/extension/lock');
 const {generateAep} = require('../../src/compile/aep');
 const {inspectArchive, readAwp, writeAwp} = require('../../src/awp/archive');
 
@@ -180,4 +180,75 @@ test('applyAepLock rejects malformed ids and hashes', () => {
     const manifest = {extensions: {aepCapabilities: []}};
     assert.throws(() => applyAepLock(manifest, '9bad', '0.1.0', 'd'.repeat(64), []), /AEP-LOCK-007/);
     assert.throws(() => applyAepLock(manifest, 'good', '0.1.0', 'short', []), /AEP-LOCK-006/);
+});
+
+test('verifyAepLockForAwp reads the AWP manifest and matches a freshly compiled AEP', () => {
+    const dir = makeTempDir('lock-awp');
+    try {
+        const {awpPath, manifest} = buildExtensionAwp(dir);
+        const aepPath = path.join(dir, 'output.aep');
+        generateAep(awpPath, aepPath);
+        const actual = sha256Hex(aepPath);
+        applyAepLock(manifest, 'example-extension', '0.1.0', actual, []);
+        const outPath = path.join(dir, 'project.locked.awp');
+        const irCopy = {
+            irVersion: 1,
+            projectId: 'example-extension',
+            workType: 'AprismExtension',
+            target: {edition: 'JE', minecraft: '26.2', aprism: 'v26.8-Alpha.7'},
+            capabilities: ['basic'],
+            extension: {type: 'api-extension', aprismRange: '>=26.8.0'},
+            declarations: [],
+            handlers: []
+        };
+        writeAwp(outPath, {manifest, ir: JSON.parse(JSON.stringify(irCopy))});
+        const result = verifyAepLockForAwp(aepPath, outPath);
+        assert.equal(result.checked, true);
+        assert.equal(result.matched, true);
+        assert.equal(result.expected, actual);
+        assert.equal(result.actual, actual);
+    } finally {
+        fs.rmSync(dir, {recursive: true, force: true});
+    }
+});
+
+test('verifyAepLockForAwp flags a hash mismatch and exposes the AEP-LOCK-005 diagnostic', () => {
+    const dir = makeTempDir('lock-awp-mismatch');
+    try {
+        const {awpPath, manifest} = buildExtensionAwp(dir);
+        const aepPath = path.join(dir, 'output.aep');
+        generateAep(awpPath, aepPath);
+        applyAepLock(manifest, 'example-extension', '0.1.0', 'f'.repeat(64), []);
+        const outPath = path.join(dir, 'project.locked.awp');
+        const irCopy = {
+            irVersion: 1,
+            projectId: 'example-extension',
+            workType: 'AprismExtension',
+            target: {edition: 'JE', minecraft: '26.2', aprism: 'v26.8-Alpha.7'},
+            capabilities: ['basic'],
+            extension: {type: 'api-extension', aprismRange: '>=26.8.0'},
+            declarations: [],
+            handlers: []
+        };
+        writeAwp(outPath, {manifest, ir: JSON.parse(JSON.stringify(irCopy))});
+        const result = verifyAepLockForAwp(aepPath, outPath);
+        assert.equal(result.checked, true);
+        assert.equal(result.matched, false);
+        assert.ok(result.diagnostics.some(d => d.code === 'AEP-LOCK-005'));
+    } finally {
+        fs.rmSync(dir, {recursive: true, force: true});
+    }
+});
+
+test('verifyAepLockForAwp reports an AEP-LOCK-011 diagnostic when the AWP cannot be read', () => {
+    const result = verifyAepLockForAwp(path.join(os.tmpdir(), 'does-not-exist.aep'), path.join(os.tmpdir(), 'does-not-exist.awp'));
+    assert.equal(result.checked, false);
+    assert.equal(result.matched, false);
+    assert.ok(result.diagnostics.some(d => d.code === 'AEP-LOCK-011'));
+});
+
+test('verifyAepLockForAwp requires a non-empty AWP path', () => {
+    const result = verifyAepLockForAwp(path.join(os.tmpdir(), 'whatever.aep'), '');
+    assert.equal(result.checked, false);
+    assert.ok(result.diagnostics.some(d => d.code === 'AEP-LOCK-010'));
 });

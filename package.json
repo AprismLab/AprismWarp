@@ -14,7 +14,8 @@
     "test:extension": "node --test test/extension/manifest.test.js",
     "test:lock": "node --test test/extension/lock.test.js",
     "test:compile": "node --test test/compile/aep.test.js",
-    "generate:aep": "node scripts/generate-aep.js"
+    "generate:aep": "node scripts/generate-aep.js",
+    "verify:aep-lock": "node scripts/verify-aep-lock.js"
   },
   "engines": {
     "node": ">=20"

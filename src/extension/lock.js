@@ -102,6 +102,33 @@ function verifyAepLock(aepPath, manifest) {
 }
 
 /**
+ * Reads the manifest from an .awp project archive and verifies the AEP
+ * file against its `extensions.aepCapabilities` lock table. Returns the
+ * same shape as {@link verifyAepLock}.
+ *
+ * @param {string} aepPath path to the generated .aep
+ * @param {string} awpPath path to the source .awp project archive
+ * @returns {{checked: boolean, matched: boolean, lock: object|null, expected: string|null, actual: string|null, diagnostics: Array<object>}}
+ */
+function verifyAepLockForAwp(aepPath, awpPath) {
+    const diagnostics = [];
+    if (!awpPath) {
+        diagnostics.push({code: 'AEP-LOCK-010', severity: 'error', message: 'AWP path is required.'});
+        return {checked: false, matched: false, lock: null, expected: null, actual: null, diagnostics};
+    }
+    let manifest;
+    try {
+        const {readAwp} = require('../awp/archive');
+        const project = readAwp(awpPath);
+        manifest = project.manifest;
+    } catch (error) {
+        diagnostics.push({code: 'AEP-LOCK-011', severity: 'error', message: `failed to read AWP: ${error.message}`});
+        return {checked: false, matched: false, lock: null, expected: null, actual: null, diagnostics};
+    }
+    return verifyAepLock(aepPath, manifest);
+}
+
+/**
  * Recomputes and rewrites the AWP project so its
  * `extensions.aepCapabilities` entries carry the SHA-256 of the generated
  * AEP file. Returns the new lock list. Existing locks whose id is
@@ -143,4 +170,4 @@ function applyAepLock(manifest, aepId, version, aepHash, capabilities) {
     return list;
 }
 
-module.exports = {sha256Hex, getAepLocks, verifyAepLock, applyAepLock};
+module.exports = {sha256Hex, getAepLocks, verifyAepLock, verifyAepLockForAwp, applyAepLock};

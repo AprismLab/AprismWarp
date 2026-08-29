@@ -151,7 +151,7 @@ function applyAepLock(manifest, aepId, version, aepHash, capabilities) {
         throw new Error('AEP-LOCK-006: aepHash must be a 64-character hex SHA-256.');
     }
     if (!manifest.extensions || typeof manifest.extensions !== 'object') {
-        manifest.extensions = {aepCapabilities: [], aweEditors: []};
+        manifest.extensions = {aepCapabilities: [], ajeCapabilities: [], aweEditors: []};
     }
     const normalisedHash = aepHash.toLowerCase();
     const list = Array.isArray(manifest.extensions.aepCapabilities)
@@ -170,4 +170,156 @@ function applyAepLock(manifest, aepId, version, aepHash, capabilities) {
     return list;
 }
 
-module.exports = {sha256Hex, getAepLocks, verifyAepLock, verifyAepLockForAwp, applyAepLock};
+/**
+ * Returns the array of AJE capability locks recorded in an AWP project
+ * manifest, or an empty array when no locks are declared. Locks with
+ * malformed ids or non-64-character hashes are silently skipped.
+ *
+ * @param {object} manifest parsed AWP manifest
+ * @returns {Array<{id: string, version: string, sha256: string, capabilities: string[]}>}
+ */
+function getAjeLocks(manifest) {
+    const locks = manifest && manifest.extensions && manifest.extensions.ajeCapabilities;
+    if (!Array.isArray(locks)) return [];
+    const result = [];
+    for (const lock of locks) {
+        if (!lock || typeof lock.id !== 'string' || !LOCK_ID_PATTERN.test(lock.id)) continue;
+        if (typeof lock.sha256 !== 'string' || !SHA256_PATTERN.test(lock.sha256)) continue;
+        result.push({
+            id: lock.id,
+            version: typeof lock.version === 'string' ? lock.version : '',
+            sha256: lock.sha256.toLowerCase(),
+            capabilities: Array.isArray(lock.capabilities) ? lock.capabilities.slice() : []
+        });
+    }
+    return result;
+}
+
+/**
+ * Verifies that the SHA-256 of a generated AJE file matches a lock entry
+ * in the .awp project's `extensions.ajeCapabilities` array. The id
+ * comparison is done against the `aprism.manifest.json.id` field inside
+ * the AJE. The function never throws; it returns a result object so
+ * callers can surface diagnostics without exception-handling.
+ *
+ * @param {string} ajePath path to the generated .aje
+ * @param {object} manifest parsed AWP manifest
+ * @returns {{checked: boolean, matched: boolean, lock: object|null, expected: string|null, actual: string|null, diagnostics: Array<object>}}
+ */
+function verifyAjeLock(ajePath, manifest) {
+    const diagnostics = [];
+    if (!ajePath) {
+        diagnostics.push({code: 'AJE-LOCK-001', severity: 'error', message: 'AJE path is required.'});
+        return {checked: false, matched: false, lock: null, expected: null, actual: null, diagnostics};
+    }
+    const locks = getAjeLocks(manifest);
+    if (locks.length === 0) {
+        return {checked: false, matched: false, lock: null, expected: null, actual: null, diagnostics};
+    }
+    let actualHash;
+    try {
+        actualHash = sha256Hex(ajePath);
+    } catch (error) {
+        diagnostics.push({code: 'AJE-LOCK-002', severity: 'error', message: `failed to hash AJE: ${error.message}`});
+        return {checked: true, matched: false, lock: null, expected: null, actual: null, diagnostics};
+    }
+    let ajeManifest = null;
+    try {
+        const {inspectArchive} = require('../awp/archive');
+        const files = inspectArchive(fs.readFileSync(ajePath));
+        const manifestBytes = files.get('aprism.manifest.json');
+        if (manifestBytes) ajeManifest = JSON.parse(manifestBytes.toString('utf8'));
+    } catch (error) {
+        diagnostics.push({code: 'AJE-LOCK-003', severity: 'error', message: `failed to read AJE manifest: ${error.message}`});
+    }
+    const ajeId = ajeManifest && typeof ajeManifest.id === 'string' ? ajeManifest.id : '';
+    for (const lock of locks) {
+        if (lock.id !== ajeId) {
+            diagnostics.push({
+                code: 'AJE-LOCK-004', severity: 'warning',
+                message: `lock id "${lock.id}" does not match AJE mod id "${ajeId}".`
+            });
+            continue;
+        }
+        if (lock.sha256 === actualHash) {
+            return {checked: true, matched: true, lock, expected: lock.sha256, actual: actualHash, diagnostics};
+        }
+        diagnostics.push({
+            code: 'AJE-LOCK-005', severity: 'error',
+            message: `AJE hash mismatch for ${lock.id}: expected ${lock.sha256}, got ${actualHash}.`
+        });
+        return {checked: true, matched: false, lock, expected: lock.sha256, actual: actualHash, diagnostics};
+    }
+    return {checked: true, matched: false, lock: null, expected: null, actual: actualHash, diagnostics};
+}
+
+/**
+ * Reads the manifest from an .awp project archive and verifies the AJE
+ * file against its `extensions.ajeCapabilities` lock table. Returns the
+ * same shape as {@link verifyAjeLock}.
+ *
+ * @param {string} ajePath path to the generated .aje
+ * @param {string} awpPath path to the source .awp project archive
+ * @returns {{checked: boolean, matched: boolean, lock: object|null, expected: string|null, actual: string|null, diagnostics: Array<object>}}
+ */
+function verifyAjeLockForAwp(ajePath, awpPath) {
+    const diagnostics = [];
+    if (!awpPath) {
+        diagnostics.push({code: 'AJE-LOCK-010', severity: 'error', message: 'AWP path is required.'});
+        return {checked: false, matched: false, lock: null, expected: null, actual: null, diagnostics};
+    }
+    let manifest;
+    try {
+        const {readAwp} = require('../awp/archive');
+        const project = readAwp(awpPath);
+        manifest = project.manifest;
+    } catch (error) {
+        diagnostics.push({code: 'AJE-LOCK-011', severity: 'error', message: `failed to read AWP: ${error.message}`});
+        return {checked: false, matched: false, lock: null, expected: null, actual: null, diagnostics};
+    }
+    return verifyAjeLock(ajePath, manifest);
+}
+
+/**
+ * Recomputes and rewrites the AWP project so its
+ * `extensions.ajeCapabilities` entries carry the SHA-256 of the generated
+ * AJE file. Returns the new lock list. Existing locks whose id is
+ * different from the AJE mod id are preserved. An entry with the
+ * matching id is updated in place; if no such entry exists, a new one
+ * is inserted.
+ *
+ * @param {object} manifest parsed AWP manifest (mutated in place)
+ * @param {string} ajeId the mod id inside the AJE manifest
+ * @param {string} version mod version recorded by the AJE manifest
+ * @param {string} ajeHash lowercase hex SHA-256 of the AJE file
+ * @param {string[]} [capabilities] optional capability ids to associate
+ * @returns {Array<object>} the updated `ajeCapabilities` array
+ */
+function applyAjeLock(manifest, ajeId, version, ajeHash, capabilities) {
+    if (!LOCK_ID_PATTERN.test(ajeId)) {
+        throw new Error('AJE-LOCK-007: ajeId must be a lowercase Aprism identifier.');
+    }
+    if (!SHA256_PATTERN.test(ajeHash)) {
+        throw new Error('AJE-LOCK-006: ajeHash must be a 64-character hex SHA-256.');
+    }
+    if (!manifest.extensions || typeof manifest.extensions !== 'object') {
+        manifest.extensions = {aepCapabilities: [], ajeCapabilities: [], aweEditors: []};
+    }
+    const normalisedHash = ajeHash.toLowerCase();
+    const list = Array.isArray(manifest.extensions.ajeCapabilities)
+        ? manifest.extensions.ajeCapabilities.slice()
+        : [];
+    const index = list.findIndex(entry => entry && entry.id === ajeId);
+    const next = {
+        id: ajeId,
+        version: version || '',
+        sha256: normalisedHash,
+        capabilities: Array.isArray(capabilities) ? capabilities.slice() : (index >= 0 ? (list[index].capabilities || []).slice() : [])
+    };
+    if (index >= 0) list[index] = next;
+    else list.push(next);
+    manifest.extensions.ajeCapabilities = list;
+    return list;
+}
+
+module.exports = {sha256Hex, getAepLocks, verifyAepLock, verifyAepLockForAwp, applyAepLock, getAjeLocks, verifyAjeLock, verifyAjeLockForAwp, applyAjeLock};

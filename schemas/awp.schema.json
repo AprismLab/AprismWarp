@@ -12,7 +12,7 @@
     "name": {"type": "string", "minLength": 1},
     "workType": {"type": "string", "enum": ["AprismJEMod", "AprismExtension"]},
     "workProfile": {"type": "object", "required": ["minecraftVersion", "aprismVersion", "workType"], "properties": {"minecraftVersion": {"type": "string", "minLength": 1}, "aprismVersion": {"type": "string", "minLength": 1}, "workType": {"type": "string", "enum": ["AprismJEMod", "AprismExtension"]}}, "additionalProperties": true},
-    "extensions": {"type": "object", "additionalProperties": false, "properties": {"aepCapabilities": {"type": "array", "items": {"$ref": "#/$defs/lockedExtension"}, "uniqueItems": true}, "aweEditors": {"type": "array", "items": {"$ref": "#/$defs/lockedExtension"}, "uniqueItems": true}}},
+    "extensions": {"type": "object", "additionalProperties": false, "properties": {"aepCapabilities": {"type": "array", "items": {"$ref": "#/$defs/lockedExtension"}, "uniqueItems": true}, "ajeCapabilities": {"type": "array", "items": {"$ref": "#/$defs/lockedExtension"}, "uniqueItems": true}, "aweEditors": {"type": "array", "items": {"$ref": "#/$defs/lockedExtension"}, "uniqueItems": true}}},
     "target": {
       "type": "object",
       "required": ["aprism", "edition", "minecraft"],

@@ -2,7 +2,8 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const {readAwp} = require('../awp/archive');
+const {readAwp, writeAwp} = require('../awp/archive');
+const {sha256Hex, getAjeLocks, verifyAjeLock, applyAjeLock} = require('../extension/lock');
 
 const AJE_MANIFEST = 'aprism.manifest.json';
 const MOD_JAR_PATH = 'build/mod.jar';
@@ -279,6 +280,68 @@ function generateAje(awpPath, ajePath, options = {}) {
     return {manifest, entries: Object.keys(archiveEntries), checksumsPath};
 }
 
+/**
+ * Compiles an .awp project to .aje and writes the resulting AJE hash back
+ * into the project's `extensions.ajeCapabilities` lock table. The .awp
+ * archive is then re-serialised at `options.awpOutPath` (or the original
+ * `awpPath` by default) with the updated lock.
+ *
+ * When `options.updateAwp` is `false` the AWP is read but not rewritten; the
+ * caller receives the updated manifest in the result and is responsible for
+ * any persistence. The default is `true`.
+ *
+ * @param {string} awpPath source .awp project archive
+ * @param {string} ajePath destination path for the generated .aje
+ * @param {object} [options]
+ * @param {string} [options.awpOutPath] path to rewrite the .awp to
+ * @param {boolean} [options.updateAwp=true] whether to rewrite the .awp
+ * @returns {{manifest: object, lock: object, ajePath: string, awpPath: string, checksumsPath: string}}
+ */
+function generateAjeAndLock(awpPath, ajePath, options = {}) {
+    const updateAwp = options.updateAwp !== false;
+    const awpOutPath = options.awpOutPath || awpPath;
+    const project = readModEditorMetadata(awpPath);
+    generateAje(awpPath, ajePath, options);
+
+    const ajeHash = sha256Hex(ajePath);
+    const ajeFiles = inspectAjeEntries(ajePath);
+    const modId = ajeFiles && ajeFiles.manifest ? ajeFiles.manifest.id : project.manifest.projectId;
+    const version = ajeFiles && ajeFiles.manifest ? ajeFiles.manifest.version : '';
+
+    const manifestCopy = JSON.parse(JSON.stringify(project.manifest));
+    applyAjeLock(manifestCopy, modId, version, ajeHash, []);
+    const verification = verifyAjeLock(ajePath, manifestCopy);
+    if (!verification.matched) {
+        throw new Error('AWP-AJE-LOCK-BACKFILL-001: lock backfill failed verification: ' +
+            verification.diagnostics.map(d => d.message).join('; '));
+    }
+    const lock = getAjeLocks(manifestCopy).find(entry => entry.id === modId) || null;
+
+    if (updateAwp) {
+        const projectCopy = {
+            manifest: manifestCopy,
+            ir: project.ir,
+            files: project.files
+        };
+        writeAwp(awpOutPath, projectCopy);
+    }
+
+    const checksumsPath = `${ajePath}.checksums.txt`;
+    return {manifest: manifestCopy, lock, ajePath, awpPath: awpOutPath, checksumsPath};
+}
+
+function inspectAjeEntries(ajePath) {
+    const {inspectArchive} = require('../awp/archive');
+    const files = inspectArchive(fs.readFileSync(ajePath));
+    const manifestBytes = files.get(AJE_MANIFEST);
+    if (!manifestBytes) return {manifest: null, files: []};
+    try {
+        return {manifest: JSON.parse(manifestBytes.toString('utf8')), files: [...files.keys()]};
+    } catch (error) {
+        throw new Error(`AWP-AJE-LOCK-BACKFILL-002: cannot parse AJE manifest: ${error.message}`);
+    }
+}
+
 function writeAje(ajePath, archiveEntries) {
     const names = Object.keys(archiveEntries).sort();
     const local = [];
@@ -370,4 +433,4 @@ function buildCentralHeader(entry) {
     return header;
 }
 
-module.exports = {generateAje, readModEditorMetadata, buildModManifest, AJE_MANIFEST, MOD_JAR_PATH};
+module.exports = {generateAje, generateAjeAndLock, readModEditorMetadata, buildModManifest, AJE_MANIFEST, MOD_JAR_PATH};

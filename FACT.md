@@ -26,6 +26,7 @@
 | D-06 | Mod generation must be deterministic and produce a normal Aprism `.aje` artifact, not execute arbitrary browser JavaScript in Minecraft. | Aprism manifest and packaging contracts | [H] |
 | D-07 | `.awp` is the editable project container; `.aje` is the generated AprismMod distribution. | Separation of design data and runtime artifact | [H] |
 | D-08 | AprismWarp-native extensions are authored as `AprismExtension` projects and export `.aep`; Java mods are authored as `AprismJEMod` projects and export `.aje`. | Aprism `.aep`/`.aje` contracts | [H] |
+| D-09 | Desktop shell is Electron, matching TurboWarp upstream (TurboWarp Desktop = Electron + scratch-gui). The shell reuses scratch-gui build recipes, and its main process owns the host bridge and MDL lifecycle per D-02. The zero-dependency discipline continues to bind the core toolchain packages; the GUI/desktop package carries the scratch-gui dependency tree. | Upstream TurboWarp architecture inspection; user confirmation | [V] |
 
 ## 3. Upstream Snapshot
 
@@ -62,6 +63,9 @@
 - [DONE] Implemented read-only `.aep` editor-manifest inspection without executing embedded code (`src/aep/inspect.js`, `npm run inspect:aep`).
 - [DONE] Implemented the `.awe` editor-extension inspector (`src/awe/inspect.js`, `npm run inspect:awe`): safe ZIP reading with AWE-ARCHIVE/AWE-MANIFEST/AWE-CONTRIB diagnostics, schema validation against `schemas/awe.schema.json`, permission-consistency checks, declared-contribution existence checks, trusted `runtime/` flagged as disabled-by-default and never executed.
 - [DONE] Implemented `.awp` lock-list support for `.awe` editor extensions (`getAweLocks`, `verifyAweLock`, `verifyAweLockForAwp`, `applyAweLock` in `src/extension/lock.js`), completing the extension-model.md §5 lock table for all three formats (`aepCapabilities`, `ajeCapabilities`, `aweEditors`).
+- [DONE] Recorded the desktop shell decision as D-09 (Electron, matching TurboWarp upstream).
+- [DONE] Scaffolded the Electron desktop shell (`desktop/`): pure-Node app core (`desktop/lib/app-core.js`) boots the existing host bridge and is covered by 4 Node tests without launching Electron; thin `main.js` wrapper creates a contextIsolation BrowserWindow with a CSP-restricted placeholder renderer and an IPC preload.
+- [NOTE] `npm install` of the Electron binary failed twice with `ECONNRESET` against the GitHub release mirror; the devDependency is declared and the app core is testable, but `npm --prefix desktop start` remains blocked until the download succeeds.
 - [DONE] Adopted GPL-3.0-only for AprismWarp before importing or modifying TurboWarp scratch-gui code.
 
 ## 5. Acceptance Gates

@@ -21,6 +21,8 @@
     "test:compile:java": "node --test test/compile/java.test.js",
     "test:compile:profile": "node --test test/compile/target-profile.test.js",
     "test:bridge": "node --test test/bridge/server.test.js",
+    "test:desktop": "node --test desktop/test/app-core.test.js",
+    "desktop": "npm --prefix desktop start",
     "test:schema": "node --test test/schema/validate.test.js test/schema/awp-schemas.test.js",
     "test:ir": "node --test test/ir/validate.test.js",
     "generate:aep": "node scripts/generate-aep.js",

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src http://127.0.0.1:* http://localhost:*">
+    <title>AprismWarp</title>
+    <style>
+        body { font-family: "Segoe UI", sans-serif; background: #1e1e28; color: #e8e8f0;
+               display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        main { text-align: center; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        p { color: #9a9ab0; }
+        #status { margin-top: 1rem; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>AprismWarp</h1>
+        <p>Graphical workbench for Aprism mods and extensions.</p>
+        <p id="status">connecting to host bridge...</p>
+    </main>
+    <script src="index.js"></script>
+</body>
+</html>

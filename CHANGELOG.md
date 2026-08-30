@@ -28,8 +28,9 @@ All notable changes are documented per the BC version control specification
   `validate` / `package` / `capabilities` / `status` endpoints.
 - `.awe` editor-extension inspector: declarative manifest, blocks, and panel
   parsing with permission-consistency diagnostics; `runtime/` code is reported
-  but never executed.
-- Cross-format integration tests; suite totals 139 passing tests.
+  but never executed. `.awp` projects can lock enabled `.awe` extensions by
+  id, version, and SHA-256 (`extensions.aweEditors`).
+- Cross-format integration tests; suite totals 151 passing tests.
 
 ### Security
 - Bridge listens on loopback only; bearer token required; archive entry paths

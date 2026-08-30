@@ -351,5 +351,165 @@ function applyAjeLock(manifest, ajeId, version, ajeHash, capabilities) {
     return list;
 }
 
-module.exports = {sha256Hex, getAepLocks, verifyAepLock, verifyAepLockForAwp, applyAepLock, getAjeLocks, verifyAjeLock, verifyAjeLockForAwp, applyAjeLock};
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
+/**
+ * Returns the array of AWE editor-extension locks recorded in an AWP
+ * project manifest, or an empty array when no locks are declared. Locks
+ * with malformed ids or non-64-character hashes are silently skipped.
+ * The declared AWE permissions are carried in the shared
+ * `capabilities` field of the lockedExtension schema.
+ *
+ * @param {object} manifest parsed AWP manifest
+ * @returns {Array<{id: string, version: string, sha256: string, capabilities: string[]}>}
+ */
+function getAweLocks(manifest) {
+    const locks = manifest && manifest.extensions && manifest.extensions.aweEditors;
+    if (!Array.isArray(locks)) return [];
+    const result = [];
+    for (const lock of locks) {
+        if (!lock || typeof lock.id !== 'string' || !LOCK_ID_PATTERN.test(lock.id)) continue;
+        if (typeof lock.sha256 !== 'string' || !SHA256_PATTERN.test(lock.sha256)) continue;
+        result.push({
+            id: lock.id,
+            version: typeof lock.version === 'string' ? lock.version : '',
+            sha256: lock.sha256.toLowerCase(),
+            capabilities: Array.isArray(lock.capabilities) ? lock.capabilities.slice() : []
+        });
+    }
+    return result;
+}
+
+/**
+ * Verifies that the SHA-256 of an .awe editor extension matches a lock
+ * entry in the .awp project's `extensions.aweEditors` array. The id
+ * comparison is done against the `aprismwarp.extension.json.id` field
+ * inside the AWE. The function never throws; it returns a result object
+ * so callers can surface diagnostics without exception-handling.
+ *
+ * @param {string} awePath path to the .awe file
+ * @param {object} manifest parsed AWP manifest
+ * @returns {{checked: boolean, matched: boolean, lock: object|null, expected: string|null, actual: string|null, diagnostics: Array<object>}}
+ */
+function verifyAweLock(awePath, manifest) {
+    const diagnostics = [];
+    if (!awePath) {
+        diagnostics.push({code: 'AWE-LOCK-001', severity: 'error', message: 'AWE path is required.'});
+        return {checked: false, matched: false, lock: null, expected: null, actual: null, diagnostics};
+    }
+    const locks = getAweLocks(manifest);
+    if (locks.length === 0) {
+        return {checked: false, matched: false, lock: null, expected: null, actual: null, diagnostics};
+    }
+    let actualHash;
+    try {
+        actualHash = sha256Hex(awePath);
+    } catch (error) {
+        diagnostics.push({code: 'AWE-LOCK-002', severity: 'error', message: `failed to hash AWE: ${error.message}`});
+        return {checked: true, matched: false, lock: null, expected: null, actual: null, diagnostics};
+    }
+    let aweManifest = null;
+    try {
+        const {inspectAwe} = require('../awe/inspect');
+        const inspection = inspectAwe(awePath);
+        aweManifest = inspection.manifest;
+    } catch (error) {
+        diagnostics.push({code: 'AWE-LOCK-003', severity: 'error', message: `failed to read AWE manifest: ${error.message}`});
+    }
+    const aweId = aweManifest && typeof aweManifest.id === 'string' ? aweManifest.id : '';
+    for (const lock of locks) {
+        if (lock.id !== aweId) {
+            diagnostics.push({
+                code: 'AWE-LOCK-004', severity: 'warning',
+                message: `lock id "${lock.id}" does not match AWE extension id "${aweId}".`
+            });
+            continue;
+        }
+        if (lock.sha256 === actualHash) {
+            return {checked: true, matched: true, lock, expected: lock.sha256, actual: actualHash, diagnostics};
+        }
+        diagnostics.push({
+            code: 'AWE-LOCK-005', severity: 'error',
+            message: `AWE hash mismatch for ${lock.id}: expected ${lock.sha256}, got ${actualHash}.`
+        });
+        return {checked: true, matched: false, lock, expected: lock.sha256, actual: actualHash, diagnostics};
+    }
+    return {checked: true, matched: false, lock: null, expected: null, actual: actualHash, diagnostics};
+}
+
+/**
+ * Reads the manifest from an .awp project archive and verifies the .awe
+ * file against its `extensions.aweEditors` lock table. Returns the same
+ * shape as {@link verifyAweLock}.
+ *
+ * @param {string} awePath path to the .awe file
+ * @param {string} awpPath path to the source .awp project archive
+ * @returns {{checked: boolean, matched: boolean, lock: object|null, expected: string|null, actual: string|null, diagnostics: Array<object>}}
+ */
+function verifyAweLockForAwp(awePath, awpPath) {
+    const diagnostics = [];
+    if (!awePath) {
+        diagnostics.push({code: 'AWE-LOCK-001', severity: 'error', message: 'AWE path is required.'});
+        return {checked: false, matched: false, lock: null, expected: null, actual: null, diagnostics};
+    }
+    if (!awpPath) {
+        diagnostics.push({code: 'AWE-LOCK-011', severity: 'error', message: 'AWP path is required.'});
+        return {checked: false, matched: false, lock: null, expected: null, actual: null, diagnostics};
+    }
+    let manifest;
+    try {
+        const {readAwp} = require('../awp/archive');
+        manifest = readAwp(awpPath).manifest;
+    } catch (error) {
+        diagnostics.push({code: 'AWE-LOCK-011', severity: 'error', message: `failed to read AWP: ${error.message}`});
+        return {checked: false, matched: false, lock: null, expected: null, actual: null, diagnostics};
+    }
+    const result = verifyAweLock(awePath, manifest);
+    return {checked: result.checked, matched: result.matched, lock: result.lock,
+        expected: result.expected, actual: result.actual,
+        diagnostics: [...diagnostics, ...result.diagnostics]};
+}
+
+/**
+ * Applies or replaces the lock entry for one .awe editor extension in an
+ * AWP project manifest. The manifest's `extensions.aweEditors` array is
+ * created when absent; an existing entry with the same id is replaced
+ * in place.
+ *
+ * @param {object} manifest parsed AWP manifest (mutated in place)
+ * @param {string} aweId the extension id inside the AWE manifest
+ * @param {string} version extension version recorded by the AWE manifest
+ * @param {string} aweHash lowercase hex SHA-256 of the .awe file
+ * @param {string[]} [permissions] optional permission ids to associate
+ * @returns {Array<object>} the updated `aweEditors` array
+ */
+function applyAweLock(manifest, aweId, version, aweHash, permissions) {
+    if (!LOCK_ID_PATTERN.test(aweId)) {
+        throw new Error('AWE-LOCK-007: aweId must be a lowercase Aprism identifier.');
+    }
+    if (!SHA256_PATTERN.test(aweHash)) {
+        throw new Error('AWE-LOCK-006: aweHash must be a 64-character hex SHA-256.');
+    }
+    if (!manifest.extensions || typeof manifest.extensions !== 'object') {
+        manifest.extensions = {aepCapabilities: [], ajeCapabilities: [], aweEditors: []};
+    }
+    if (!Array.isArray(manifest.extensions.aweEditors)) {
+        manifest.extensions.aweEditors = [];
+    }
+    const normalisedHash = aweHash.toLowerCase();
+    const list = manifest.extensions.aweEditors.slice();
+    const index = list.findIndex(entry => entry && entry.id === aweId);
+    const next = {
+        id: aweId,
+        version: version || '',
+        sha256: normalisedHash,
+        capabilities: Array.isArray(permissions) ? permissions.slice() : (index >= 0 ? (list[index].capabilities || []).slice() : [])
+    };
+    if (index >= 0) list[index] = next;
+    else list.push(next);
+    manifest.extensions.aweEditors = list;
+    return list;
+}
+
+module.exports = {sha256Hex, getAepLocks, verifyAepLock, verifyAepLockForAwp, applyAepLock, getAjeLocks, verifyAjeLock, verifyAjeLockForAwp, applyAjeLock, getAweLocks, verifyAweLock, verifyAweLockForAwp, applyAweLock};
 

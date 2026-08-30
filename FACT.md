@@ -63,6 +63,7 @@
 - [DONE] Added work-type-aware IR validation, schemas, minimal `AprismJEMod` fixture, and extension validation tests.
 - [DONE] Defined the dual extension model: optional declarative `.aep` editor capability manifests and separate permissioned `.awe` editor extensions.
 - [DONE] Implemented read-only `.aep` editor-manifest inspection without executing embedded code (`src/aep/inspect.js`, `npm run inspect:aep`).
+- [DONE] Implemented the `.awe` editor-extension inspector (`src/awe/inspect.js`, `npm run inspect:awe`): safe ZIP reading with AWE-ARCHIVE/AWE-MANIFEST/AWE-CONTRIB diagnostics, schema validation against `schemas/awe.schema.json`, permission-consistency checks, declared-contribution existence checks, trusted `runtime/` flagged as disabled-by-default and never executed.
 - [DONE] Adopted GPL-3.0-only for AprismWarp before importing or modifying TurboWarp scratch-gui code.
 
 ## 5. Acceptance Gates

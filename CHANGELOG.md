@@ -26,7 +26,10 @@ All notable changes are documented per the BC version control specification
   JAR packaging, `--build` flag, and SHA-256 lock backfill.
 - Loopback host bridge with bearer token auth, path-traversal protection, and
   `validate` / `package` / `capabilities` / `status` endpoints.
-- Cross-format integration tests; suite totals 129 passing tests.
+- `.awe` editor-extension inspector: declarative manifest, blocks, and panel
+  parsing with permission-consistency diagnostics; `runtime/` code is reported
+  but never executed.
+- Cross-format integration tests; suite totals 139 passing tests.
 
 ### Security
 - Bridge listens on loopback only; bearer token required; archive entry paths

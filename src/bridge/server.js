@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const http = require('node:http');
 const crypto = require('node:crypto');
@@ -49,6 +49,9 @@ function verifyLoopbackPeer(req) {
     return remote;
 }
 
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
+
 /**
  * Reads the request body into a buffer with a size limit. The body is
  * expected to be UTF-8 JSON.
@@ -98,6 +101,9 @@ function constantTimeEquals(a, b) {
  * @returns {string|null} the bearer token
  */
 function extractBearerToken(req) {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     const header = req.headers.authorization || req.headers.Authorization;
     if (typeof header !== 'string') return null;
     if (!header.startsWith('Bearer ')) return null;
@@ -148,6 +154,9 @@ function wrapSuccess(payload) {
  */
 function wrapError(error) {
     const statusCode = Number.isInteger(error.statusCode) ? error.statusCode : 500;
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     const code = typeof error.code === 'string' ? error.code : 'BRIDGE-INT-001';
     const message = error.exposeMessage === false ? 'internal error' : (error.message || 'internal error');
     return {
@@ -198,6 +207,9 @@ async function dispatchRequest(req, res, routes, context) {
  * @param {string} candidate the candidate path
  * @returns {string} resolved safe path
  */
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 function safePath(root, candidate) {
     if (typeof candidate !== 'string' || !candidate) {
         const error = new Error('path is required');
@@ -248,6 +260,9 @@ function buildRoutes(handlers) {
  * which is the only allowed value in v0.1.
  *
  * @param {string|undefined} candidate
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
  * @returns {string} the resolved loopback host
  */
 function resolveHost(candidate) {
@@ -298,6 +313,9 @@ function start(options = {}) {
             }
             const outputPath = safePath(options.artifactRoot || process.cwd(), body.outputPath);
             const result = options.packageAje({
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
                 awpPath: path.resolve(body.awpPath),
                 outputPath,
                 lock: body.lock !== false
@@ -348,6 +366,9 @@ function start(options = {}) {
  * Convenience helper used by the bridge client. Sends a JSON request
  * using the bound handle.
  *
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
  * @param {object} handle bridge handle from {@link start}
  * @param {string} method HTTP method
  * @param {string} path request path

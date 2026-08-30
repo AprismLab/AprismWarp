@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -49,6 +49,9 @@ function zip(entries) {
     return Buffer.concat([...locals, directory, eocd]);
 }
 
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
+
 const manifest = {
     schema: 'aprismwarp.aep-editor/v1',
     extensionId: 'example-registry',
@@ -98,6 +101,9 @@ test('rejects duplicate block ids and unsafe archive paths', () => {
         ['aprismwarp.editor.json', JSON.stringify(duplicate)],
         ['../escape.txt', 'blocked']
     ]));
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     const result = inspectAep(file);
     assert.equal(result.valid, false);
     assert.ok(result.diagnostics.some(item => item.code === 'AEP-ARCHIVE-007'));

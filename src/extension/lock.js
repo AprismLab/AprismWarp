@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const crypto = require('node:crypto');
 const fs = require('node:fs');
@@ -48,6 +48,9 @@ function getAepLocks(manifest) {
  * in the .awp project's `extensions.aepCapabilities` array. The id
  * comparison is done against the `aprism.extension.json.extensionId` field
  * inside the AEP. The function never throws; it returns a result object
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
  * so callers can surface diagnostics without exception-handling.
  *
  * @param {string} aepPath path to the generated .aep
@@ -98,6 +101,9 @@ function verifyAepLock(aepPath, manifest) {
         });
         return {checked: true, matched: false, lock, expected: lock.sha256, actual: actualHash, diagnostics};
     }
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     return {checked: true, matched: false, lock: null, expected: null, actual: actualHash, diagnostics};
 }
 
@@ -148,6 +154,9 @@ function applyAepLock(manifest, aepId, version, aepHash, capabilities) {
         throw new Error('AEP-LOCK-007: aepId must be a lowercase Aprism identifier.');
     }
     if (!SHA256_PATTERN.test(aepHash)) {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         throw new Error('AEP-LOCK-006: aepHash must be a 64-character hex SHA-256.');
     }
     if (!manifest.extensions || typeof manifest.extensions !== 'object') {
@@ -198,6 +207,9 @@ function getAjeLocks(manifest) {
 /**
  * Verifies that the SHA-256 of a generated AJE file matches a lock entry
  * in the .awp project's `extensions.ajeCapabilities` array. The id
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
  * comparison is done against the `aprism.manifest.json.id` field inside
  * the AJE. The function never throws; it returns a result object so
  * callers can surface diagnostics without exception-handling.
@@ -248,6 +260,9 @@ function verifyAjeLock(ajePath, manifest) {
             code: 'AJE-LOCK-005', severity: 'error',
             message: `AJE hash mismatch for ${lock.id}: expected ${lock.sha256}, got ${actualHash}.`
         });
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         return {checked: true, matched: false, lock, expected: lock.sha256, actual: actualHash, diagnostics};
     }
     return {checked: true, matched: false, lock: null, expected: null, actual: actualHash, diagnostics};
@@ -298,6 +313,9 @@ function verifyAjeLockForAwp(ajePath, awpPath) {
 function applyAjeLock(manifest, ajeId, version, ajeHash, capabilities) {
     if (!LOCK_ID_PATTERN.test(ajeId)) {
         throw new Error('AJE-LOCK-007: ajeId must be a lowercase Aprism identifier.');
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     }
     if (!SHA256_PATTERN.test(ajeHash)) {
         throw new Error('AJE-LOCK-006: ajeHash must be a 64-character hex SHA-256.');

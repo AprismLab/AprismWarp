@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const fs = require('node:fs');
 const zlib = require('node:zlib');
@@ -48,6 +48,9 @@ function readCentralDirectory(archive) {
         const nameStart = cursor + 46;
         const name = archive.subarray(nameStart, nameStart + nameLength).toString('utf8');
         result.push({name, method, compressedSize, size, localOffset});
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         cursor = nameStart + nameLength + extraLength + commentLength;
     }
     return result;
@@ -98,6 +101,9 @@ function isSafeEntryName(name) {
     return name.length > 0
         && !name.startsWith('/')
         && !name.includes('\\')
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         && !name.split('/').includes('..');
 }
 
@@ -148,6 +154,9 @@ function validateManifest(manifest) {
                 || typeof block.category !== 'string' || !block.category.trim()
                 || !SHAPES.has(block.shape) || !IR_KINDS.has(block.irKind)
                 || !IDENTIFIER.test(block.irOperation)) {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
                 error('AEP-EDITOR-008', `invalid block declaration in ${capability.id}.`);
                 continue;
             }
@@ -198,6 +207,9 @@ function inspectAep(archivePath) {
             manifest = JSON.parse(
                 readEntry(archive, manifestEntry, MAX_MANIFEST_BYTES).toString('utf8')
             );
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         } catch (error) {
             if (String(error.message).startsWith('AEP-EDITOR-013:')) {
                 diagnostics.push({code: 'AEP-EDITOR-013', severity: 'error', message: error.message});

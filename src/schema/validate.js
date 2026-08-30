@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -48,6 +48,9 @@ function compile(ctx, schema) {
     if (schema.enum) {
         return {kind: 'enum', values: schema.enum};
     }
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     if (Object.prototype.hasOwnProperty.call(schema, 'const')) {
         return {kind: 'const', value: schema.const};
     }
@@ -98,6 +101,9 @@ function walk(ctx, compiled, data, path, errors) {
                 code: 'SCHEMA-004',
                 message: `value must equal ${JSON.stringify(compiled.value)}`,
                 expected: compiled.value,
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
                 actual: data
             });
         }
@@ -148,6 +154,9 @@ function walk(ctx, compiled, data, path, errors) {
             code: 'SCHEMA-009',
             message: `string must be at least ${compiled.minLength} characters`,
             actual: data
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         });
     }
     if (compiled.maxLength !== undefined && typeof data === 'string' && data.length > compiled.maxLength) {
@@ -198,6 +207,9 @@ function walk(ctx, compiled, data, path, errors) {
             actual: Object.keys(data).length
         });
     }
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     if (compiled.kind === 'object' && isRecord(data)) {
         if (compiled.required) {
             for (const key of compiled.required) {
@@ -247,6 +259,9 @@ function walk(ctx, compiled, data, path, errors) {
         }
     }
 }
+
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function checkType(type, value) {
     if (Array.isArray(type)) {
@@ -298,6 +313,9 @@ function deepEqual(a, b) {
 }
 
 function childPath(parent, key) {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     if (parent === '') return key;
     return parent + '.' + key;
 }

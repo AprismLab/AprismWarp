@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -48,6 +48,9 @@ test('allows preview-only actions only during preview validation', () => {
         nodeId: 'preview-wait',
         kind: 'action',
         action: 'wait',
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         delayTicks: 20,
         previewOnly: true
     });
@@ -98,6 +101,9 @@ test('accepts a minimal AprismExtension project without JE content', () => {
 
     assert.equal(validateIr(ir).valid, true);
 });
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 test('rejects an unknown work type', () => {
     const ir = structuredClone(example);

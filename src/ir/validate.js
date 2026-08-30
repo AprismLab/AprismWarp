@@ -1,4 +1,6 @@
-'use strict';
+﻿'use strict';
+
+const {findVerifiedProfile, listVerifiedProfiles} = require('../compile/target-profile');
 
 const BASIC_ACTIONS = new Set(['log.info']);
 const PREVIEW_ONLY_ACTIONS = new Set([
@@ -46,6 +48,9 @@ function validateIr(ir, options = {}) {
         report('AWP-IR-001', 'IR must be an object.');
         return {valid: false, diagnostics};
     }
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     if (ir.irVersion !== 1) {
         report('AWP-IR-002', 'IR version must be 1.');
     }
@@ -57,6 +62,15 @@ function validateIr(ir, options = {}) {
     }
     if (!isRecord(ir.target) || ir.target.edition !== 'JE' || !isNonBlankString(ir.target.minecraft) || !isNonBlankString(ir.target.aprism)) {
         report('AWP-IR-005', 'Target must declare JE, Minecraft, and Aprism versions.');
+    } else {
+        const profile = findVerifiedProfile(ir.target);
+        if (!profile) {
+            const known = listVerifiedProfiles().map(p => `${p.minecraft}+${p.aprism}`).join(', ');
+            report(
+                'AWP-IR-009',
+                `Target profile (${ir.target.minecraft} + ${ir.target.aprism}) is not in the verified list. Known profiles: ${known}.`
+            );
+        }
     }
     if (!Array.isArray(ir.capabilities) || !ir.capabilities.includes('basic')) {
         report('AWP-IR-006', 'IR must declare the basic capability.');
@@ -87,6 +101,9 @@ function validateIr(ir, options = {}) {
     }
 
     return {valid: diagnostics.length === 0, diagnostics};
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 }
 
 function validateExtension(ir, report) {
@@ -137,6 +154,9 @@ function validateDeclaration(node, report, seenNodeIds) {
         }
         if (!Number.isInteger(node.luminance) || node.luminance < 0 || node.luminance > 15) {
             report('AWP-IR-015', 'Block luminance must be between 0 and 15.', nodeId);
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         }
     }
     if (node.declaration === 'resource' && (!isSafeRelativePath(node.path))) {
@@ -187,6 +207,9 @@ function validateAction(node, report, seenNodeIds, mode) {
         return;
     }
     if (node.action === 'schedule.once' || node.action === 'wait') {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         validatePositiveTicks(node.delayTicks, report, nodeId);
     }
     if (node.action === 'schedule.repeat') {
@@ -237,6 +260,9 @@ function isNodeId(value) {
     return typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(value);
 }
 
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 function isNonBlankString(value) {
     return typeof value === 'string' && value.trim().length > 0;
 }
@@ -249,4 +275,4 @@ function nodeIdOf(value) {
     return isRecord(value) && typeof value.nodeId === 'string' ? value.nodeId : null;
 }
 
-module.exports = {validateIr};
+module.exports = {validateIr, listVerifiedProfiles};

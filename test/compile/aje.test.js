@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -48,6 +48,9 @@ function buildModAwp(workspaceDir, overrides = {}) {
         entrypoint: 'com.example.ExampleMod',
         displayName: 'Example Mod',
         description: 'A demonstration mod for tests.',
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         version: '0.1.0',
         environment: '*',
         depends: {'example-dep': '>=1.0.0'}
@@ -98,6 +101,9 @@ test('generates a deterministic .aje with manifest, mod jar, resources, mixins, 
             archiveDigest.update(ajeFiles.get(name));
         }
         const expectedHeader = `${archiveDigest.digest('hex')}  ${path.basename(ajePath)}`;
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         assert.ok(checksums.includes(expectedHeader), 'checksums.txt must include the archive header digest');
     } finally {
         fs.rmSync(dir, {recursive: true, force: true});
@@ -148,6 +154,9 @@ test('rejects an AWP without the pre-compiled mod JAR', () => {
         writeAwp(awpPath, project);
         assert.throws(() => generateAje(awpPath, path.join(dir, 'out.aje')), /AJE-COMPILE-030/);
     } finally {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
@@ -198,6 +207,9 @@ test('produceModJar returns a JAR buffer with the IAprismMod class when javac is
         assert.ok(result.source.includes('implements IAprismMod'));
         const entries = inspectArchive(result.modJar);
         assert.ok(entries.get('META-INF/MANIFEST.MF'), 'expected JAR manifest');
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         const classKey = result.entryClass.replace(/\./g, '/') + '.class';
         assert.ok(entries.get(classKey), 'expected class file ' + classKey + ' inside JAR');
     } finally {
@@ -248,6 +260,9 @@ test('generateAjeAndBuild produces a complete .aje when no pre-built mod jar is 
         const entries = inspectArchive(fs.readFileSync(ajePath));
         const modJar = entries.get('build-mod.jar');
         assert.ok(modJar && modJar.length > 0);
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         const inner = inspectArchive(modJar);
         assert.ok(inner.get('com/aprismwarp/generated/Build_modMod.class'));
     } finally {

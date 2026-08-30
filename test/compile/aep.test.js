@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -48,6 +48,9 @@ function buildAwpFixture(workspaceDir) {
         displayName: 'Example Extension',
         description: 'A demonstration extension for tests.',
         version: '0.1.0'
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     };
     const jarBytes = Buffer.from('placeholder-extension-jar');
     const awpPath = path.join(workspaceDir, 'project.awp');
@@ -99,6 +102,9 @@ function writeStoredZip(zipPath, entries) {
     fs.writeFileSync(zipPath, Buffer.concat([...locals, directory, eocd]));
 }
 
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
+
 function crc32(buffer) {
     let crc = 0xffffffff;
     for (const byte of buffer) {
@@ -148,6 +154,9 @@ function buildMinimalModAwp(workspaceDir) {
 }
 
 function buildMissingEntrypointAwp(workspaceDir) {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     const awpPath = path.join(workspaceDir, 'project.awp');
     const manifest = {
         format: 'aprismwarp-project',
@@ -198,6 +207,9 @@ function buildMissingJarAwp(workspaceDir) {
         target: {edition: 'JE', minecraft: '26.2', aprism: 'v26.8-Alpha.7'},
         source: {editor: 'aprismwarp-native', project: 'editor/project.json', ir: 'ir/project.json'}
     };
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     const ir = {
         irVersion: 1,
         projectId: 'example-extension',
@@ -248,6 +260,9 @@ test('two compilations produce identical AEP bytes', () => {
         generateAep(awpPath, aep1);
         generateAep(awpPath, aep2);
         assert.ok(fs.readFileSync(aep1).equals(fs.readFileSync(aep2)));
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     } finally {
         fs.rmSync(dir, {recursive: true, force: true});
     }
@@ -298,6 +313,9 @@ test('generateAepAndLock backfills the SHA-256 lock and rewrites the AWP', () =>
         const {awpPath} = buildAwpFixture(dir);
         const aepPath = path.join(dir, 'output.aep');
         const result = generateAepAndLock(awpPath, aepPath);
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         assert.ok(result.lock, 'lock entry must be returned');
         assert.equal(result.lock.id, 'example-extension');
         assert.equal(result.lock.sha256.length, 64);
@@ -348,6 +366,9 @@ test('generateAepAndLock writes the locked AWP to a separate path when awpOutPat
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'aprismwarp-aep-out-'));
     try {
         const {awpPath} = buildAwpFixture(dir);
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         const aepPath = path.join(dir, 'output.aep');
         const outPath = path.join(dir, 'project.locked.awp');
         const original = fs.readFileSync(awpPath);

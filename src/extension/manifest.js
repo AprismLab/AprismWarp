@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const EXTENSION_TYPES = new Set([
     'loader-support',
@@ -48,6 +48,9 @@ function buildExtensionManifest(input) {
         throw new Error(`EXT-003: projectId must match ${ID_PATTERN}.`);
     }
     if (input.target && (input.target.edition !== 'JE' && input.target.edition !== 'BE')) {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         throw new Error('EXT-004: target edition must be JE or BE.');
     }
     const type = String(extension.type || '').trim();
@@ -98,6 +101,9 @@ function buildExtensionManifest(input) {
     const mcVersion = (input.target && input.target.minecraft) || '';
 
     const manifest = {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         extensionId: projectId,
         version,
         type,
@@ -148,6 +154,9 @@ function sanitizeDependMap(value, field) {
     for (const [id, range] of Object.entries(value)) {
         if (!ID_PATTERN.test(id)) {
             throw new Error(`EXT-031: ${field} contains invalid extension id: ${id}.`);
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         }
         const rangeText = String(range || '').trim();
         if (!rangeText) {
@@ -198,6 +207,9 @@ function validateExtensionManifest(manifest) {
         error('EXT-V008', 'description is required.');
     }
     if (manifest.mcEdit && manifest.mcEdit !== 'JE' && manifest.mcEdit !== 'BE') {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         error('EXT-V009', 'mcEdit must be JE or BE.');
     }
     if (manifest.type === 'loader-support') {

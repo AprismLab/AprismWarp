@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -48,6 +48,9 @@ function buildExtensionAwp(workspaceDir, name = 'example-extension', overrides =
     const awpPath = path.join(workspaceDir, `${name}.awp`);
     const files = new Map([
         ['editor/project.json', Buffer.from(JSON.stringify(editor, null, 2) + '\n')],
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         ['build/extension.jar', Buffer.from('placeholder-extension-jar')]
     ]);
     if (overrides.editorCatalog) {
@@ -97,6 +100,9 @@ function buildModAwp(workspaceDir, name = 'example-mod', overrides = {}) {
     writeAwp(awpPath, {manifest, ir, files});
     return {awpPath, manifest, ir, editor};
 }
+
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('dual-format workspace: extension and mod AWP both compile to their respective formats', () => {
     const dir = makeTempDir('integ-dual');
@@ -148,6 +154,9 @@ test('lock coexistence: a project manifest accepts both aepCapabilities and ajeC
                 ]
             }
         });
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         const mod = buildModAwp(dir, 'example-mod');
         const aepPath = path.join(dir, 'example-extension.aep');
         const ajePath = path.join(dir, 'example-mod.aje');
@@ -198,6 +207,9 @@ test('AEP editor catalog capability ids propagate to the lock entry', () => {
 });
 
 test('AJE compile preserves unrelated manifest fields after round-trip', () => {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     const dir = makeTempDir('integ-preserve');
     try {
         const mod = buildModAwp(dir, 'example-mod', {

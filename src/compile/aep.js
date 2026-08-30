@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -48,6 +48,9 @@ function readEditorMetadata(awpPath) {
  * @returns {{manifest: object, entries: string[]}} the generated manifest and entry list
  */
 function generateAep(awpPath, aepPath, options = {}) {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     const project = readEditorMetadata(awpPath);
     if (project.manifest.workType !== 'AprismExtension') {
         throw new Error(`AWP-COMPILE-001: .awp workType must be AprismExtension; got "${project.manifest.workType}".`);
@@ -98,6 +101,9 @@ function generateAep(awpPath, aepPath, options = {}) {
     if (editorCatalog) entries[EDITOR_MANIFEST_PATH] = Buffer.from(editorCatalog);
 
     const aepFiles = new Map(Object.entries(entries));
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     writeAep(aepPath, aepFiles);
     return {manifest, entries: Object.keys(entries)};
 }
@@ -148,6 +154,9 @@ function generateAepAndLock(awpPath, aepPath, options = {}) {
             files: project.files
         };
         writeAwp(awpOutPath, projectCopy);
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     }
 
     return {manifest: manifestCopy, lock, aepPath, awpPath: awpOutPath};
@@ -198,6 +207,9 @@ function writeAep(aepPath, aepFiles) {
     for (const name of names) {
         const data = Buffer.from(aepFiles.get(name));
         const entry = buildLocalHeader(name, data, offset);
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         local.push(entry.header, entry.data);
         central.push(buildCentralHeader(entry));
         offset += entry.header.length + entry.data.length;
@@ -248,6 +260,9 @@ function buildLocalHeader(name, data, offset) {
 }
 
 function buildCentralHeader(entry) {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     const header = Buffer.alloc(46 + entry.nameBytes.length);
     header.writeUInt32LE(0x02014b50, 0);
     header.writeUInt16LE(20, 4);

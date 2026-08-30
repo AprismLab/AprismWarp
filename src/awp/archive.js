@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -47,6 +47,9 @@ function findSignatureBackwards(buffer, signature) {
     }
     return -1;
 }
+
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function readCentralDirectory(archive) {
     const eocd = findSignatureBackwards(archive, 0x06054b50);
@@ -98,6 +101,9 @@ function readEntry(archive, entry) {
     }
     const nameLength = archive.readUInt16LE(entry.localOffset + 26);
     const extraLength = archive.readUInt16LE(entry.localOffset + 28);
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     const start = entry.localOffset + 30 + nameLength + extraLength;
     const end = start + entry.compressedSize;
     if (end > archive.length) throw new Error(`AWP-ARCHIVE-008: entry is out of bounds: ${entry.name}`);
@@ -148,6 +154,9 @@ function validateProject(manifest, ir) {
         throw new Error('AWP-MANIFEST-003: workProfile does not match workType.');
     }
     if (manifest.target?.minecraft !== manifest.workProfile.minecraftVersion
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         || manifest.target?.aprism !== manifest.workProfile.aprismVersion) {
         throw new Error('AWP-MANIFEST-004: target and workProfile versions do not match.');
     }
@@ -197,6 +206,9 @@ function localHeader(name, data, offset) {
     nameBytes.copy(header, 30);
     return {header, data, nameBytes, offset};
 }
+
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function centralHeader(entry) {
     const header = Buffer.alloc(46 + entry.nameBytes.length);
@@ -248,6 +260,9 @@ function writeAwp(archivePath, project, options = {}) {
         local.push(entry.header, entry.data);
         central.push(centralHeader(entry));
         offset += entry.header.length + entry.data.length;
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     }
     const directory = Buffer.concat(central);
     const eocd = Buffer.alloc(22);

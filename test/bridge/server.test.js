@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -48,6 +48,9 @@ function buildModAwp(workspaceDir) {
 }
 
 async function withBridge(options, body) {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     const handle = await start(options);
     try {
         return await body(handle);
@@ -98,6 +101,9 @@ test('missing bearer token is rejected with 401', async () => {
         const body = JSON.parse(text.body);
         assert.equal(body.code, 'BRIDGE-AUTH-001');
         assert.equal(body.schema, ERROR_SCHEMA);
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     });
 });
 
@@ -148,6 +154,9 @@ test('package endpoint compiles an AWP into an AJE under the artifact root', asy
             packageAje: ({awpPath: a, outputPath, lock}) => {
                 return generateAjeAndLock(a, outputPath, {updateAwp: lock});
             }
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         }, async handle => {
             return request(handle, 'POST', '/api/v1/projects/package', {
                 awpPath, outputPath, lock: true
@@ -198,6 +207,9 @@ function minimalIr() {
         declarations: [],
         handlers: []
     };
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 }
 
 function rawRequest({host, port, method, path, token}) {

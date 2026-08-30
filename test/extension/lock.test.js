@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -48,6 +48,9 @@ function buildExtensionAwp(workspaceDir) {
     writeAwp(awpPath, {manifest, ir, files: new Map([
         ['editor/project.json', Buffer.from(JSON.stringify(editor, null, 2) + '\n')],
         ['build/extension.jar', Buffer.from('placeholder-jar')]
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     ])});
     return {awpPath, manifest, ir};
 }
@@ -98,6 +101,9 @@ test('verifyAepLock returns no match when no locks are declared', () => {
         const {awpPath} = buildExtensionAwp(dir);
         const aepPath = path.join(dir, 'output.aep');
         generateAep(awpPath, aepPath);
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         const result = verifyAepLock(aepPath, {extensions: {}});
         assert.equal(result.checked, false);
         assert.equal(result.matched, false);
@@ -148,6 +154,9 @@ test('verifyAepLock warns when a lock id does not match the AEP extensionId', ()
     const dir = makeTempDir('lock-id');
     try {
         const {awpPath, manifest} = buildExtensionAwp(dir);
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         const aepPath = path.join(dir, 'output.aep');
         generateAep(awpPath, aepPath);
         const actual = sha256Hex(aepPath);
@@ -198,6 +207,9 @@ test('verifyAepLockForAwp reads the AWP manifest and matches a freshly compiled 
             target: {edition: 'JE', minecraft: '26.2', aprism: 'v26.8-Alpha.7'},
             capabilities: ['basic'],
             extension: {type: 'api-extension', aprismRange: '>=26.8.0'},
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
             declarations: [],
             handlers: []
         };
@@ -248,6 +260,9 @@ test('verifyAepLockForAwp reports an AEP-LOCK-011 diagnostic when the AWP cannot
 });
 
 test('verifyAepLockForAwp requires a non-empty AWP path', () => {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     const result = verifyAepLockForAwp(path.join(os.tmpdir(), 'whatever.aep'), '');
     assert.equal(result.checked, false);
     assert.ok(result.diagnostics.some(d => d.code === 'AEP-LOCK-010'));

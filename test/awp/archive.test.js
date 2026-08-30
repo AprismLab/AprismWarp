@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -48,6 +48,9 @@ test('writes and reads a deterministic AWP archive', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'aprismwarp-awp-'));
     const first = path.join(dir, 'first.awp');
     const second = path.join(dir, 'second.awp');
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     const data = project();
 
     writeAwp(first, data);
@@ -98,6 +101,9 @@ test('rejects invalid target profile even when archive structure is valid', () =
 function makeStoredZip(entries) {
     const locals = [];
     const centrals = [];
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     let offset = 0;
     for (const [name, data] of entries) {
         const nameBytes = Buffer.from(name);

@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -47,6 +47,9 @@ test('AWP manifest schema rejects malformed top-level fields via extensions lock
     assert.equal(result.valid, false);
     assert.ok(result.errors.some(e => e.code === 'SCHEMA-006' && e.path === 'extensions.aepCapabilities[0].sha256'));
 });
+
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('IR schema accepts the bundled minimal example', () => {
     const ir = JSON.parse(fs.readFileSync(

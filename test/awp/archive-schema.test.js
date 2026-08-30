@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -48,6 +48,9 @@ test('readAwp accepts a well-formed AWP when schemas are configured', () => {
         assert.equal(project.manifest.projectId, 'schema-mod');
         assert.equal(project.ir.workType, 'AprismJEMod');
     } finally {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
@@ -98,6 +101,9 @@ test('readAwp rejects an AWP whose IR violates the schema', () => {
             name: 'IR Bad',
             workType: 'AprismJEMod',
             workProfile: {minecraftVersion: '26.2', aprismVersion: 'v26.8-Alpha.7', workType: 'AprismJEMod'},
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
             target: {edition: 'JE', minecraft: '26.2', aprism: 'v26.8-Alpha.7'},
             source: {editor: 'aprismwarp-native', project: 'editor/project.json', ir: 'ir/project.json'}
         };

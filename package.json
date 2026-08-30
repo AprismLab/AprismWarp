@@ -6,7 +6,7 @@
   "license": "GPL-3.0-only",
   "type": "commonjs",
   "scripts": {
-    "test": "node --test test/ir/validate.test.js test/aep/inspect.test.js test/awp/archive.test.js test/awp/archive-schema.test.js test/schema/validate.test.js test/schema/awp-schemas.test.js test/extension/manifest.test.js test/extension/lock.test.js test/extension/lock.aje.test.js test/compile/aep.test.js test/compile/aje.test.js test/compile/integration.test.js test/compile/java.test.js test/bridge/server.test.js",
+    "test": "node --test test/ir/validate.test.js test/aep/inspect.test.js test/awp/archive.test.js test/awp/archive-schema.test.js test/schema/validate.test.js test/schema/awp-schemas.test.js test/extension/manifest.test.js test/extension/lock.test.js test/extension/lock.aje.test.js test/compile/aep.test.js test/compile/aje.test.js test/compile/integration.test.js test/compile/java.test.js test/compile/target-profile.test.js test/bridge/server.test.js",
     "validate:example": "node scripts/validate-example.js",
     "test:aep": "node --test test/aep/inspect.test.js",
     "inspect:aep": "node scripts/inspect-aep.js",

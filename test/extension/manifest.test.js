@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
@@ -48,6 +48,9 @@ test('builds a loader-support manifest with the correct key and range', () => {
         loaderKey: 'Fa',
         loaderRange: '>=0.19.0',
         provides: ['aprismwarp:fabric-blocks']
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     }));
 
     assert.equal(manifest.type, 'loader-support');
@@ -98,6 +101,9 @@ test('rejects missing required fields', () => {
     let displayNameErr = null;
     let descriptionErr = null;
     try {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         buildExtensionManifest(input({}, {displayName: ''}));
     } catch (error) {
         displayNameErr = error;

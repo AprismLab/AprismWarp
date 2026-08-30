@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -48,6 +48,9 @@ function methodNameFromId(id, prefix) {
 
 /**
  * Renders a Java source line for a single IR action. Only the v0.1
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
  * exportable actions are emitted; preview-only actions become a `// `
  * comment so the surrounding code remains valid.
  *
@@ -98,6 +101,9 @@ function renderHandlerBody(handler, indent) {
  * on the default Aprism context until a platform adapter binds them.
  *
  * @param {object} declaration IR declaration node
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
  * @returns {string[]}
  */
 function renderDeclaration(declaration) {
@@ -148,6 +154,9 @@ function renderDeclaration(declaration) {
  * @param {number} indent
  * @returns {string[]}
  */
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 function renderLifecycleBody(ir, phase, indent) {
     const lines = [];
     if (!ir || !Array.isArray(ir.handlers)) return lines;
@@ -198,6 +207,9 @@ function generateJavaSource(ir, options = {}) {
         packageName = entryClass.substring(0, lastDot);
         className = entryClass.substring(lastDot + 1);
     } else {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         packageName = generatedPackage();
         className = entryClass;
     }
@@ -248,6 +260,9 @@ function generateJavaSource(ir, options = {}) {
     out.push('    @Override');
     out.push('    public void onSetup(AprismContext ctx) {');
     for (const line of renderLifecycleBody(ir, 'setup', 8)) out.push(line);
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     out.push('    }');
     out.push('');
     out.push('    @Override');
@@ -298,6 +313,9 @@ function renderEventHandler(handler, out) {
 
 /**
  * Appends event subscriptions to the {@code onInitialize} body. Each
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
  * generated event handler has a matching subscription that filters by
  * event class (and tick stage for game.tick).
  *
@@ -348,6 +366,9 @@ function appendEventSubscriptions(ir, out) {
 
 /**
  * Extracts the package and class name from a Java source. Returns
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
  * {@code null} when no package or public class declaration can be
  * located.
  *
@@ -398,6 +419,9 @@ function compileJava(source, outputDir, options = {}) {
     const classpathEntries = [];
     if (options.apiClasspath) classpathEntries.push(options.apiClasspath);
     if (options.classpath) classpathEntries.push(options.classpath);
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     if (classpathEntries.length > 0) args.push('-classpath', classpathEntries.join(path.delimiter));
     args.push(sourceFile);
     const result = spawnSync(javac, args, {encoding: 'utf8'});
@@ -448,6 +472,9 @@ function jarJava(classDir, outputJar, options = {}) {
         header.writeUInt16LE(0, 10);
         header.writeUInt16LE(0, 12);
         header.writeUInt32LE(crc32(data), 14);
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         header.writeUInt32LE(data.length, 18);
         header.writeUInt32LE(data.length, 22);
         header.writeUInt16LE(nameBytes.length, 26);
@@ -498,6 +525,9 @@ function walkClassFiles(dir) {
 function crc32(buffer) {
     let crc = 0xffffffff;
     for (const byte of buffer) {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         crc ^= byte;
         for (let bit = 0; bit < 8; bit += 1) {
             crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
@@ -548,6 +578,9 @@ function isJavacAvailable(javac) {
  * parent directories and inspects each directory plus its siblings for
  * an {@code aprism-api/build/libs} folder. Returns {@code null} when no
  * jar is found so the caller can decide whether compilation is possible
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
  * at all.
  *
  * @param {string} [searchRoot] directory to search upward from

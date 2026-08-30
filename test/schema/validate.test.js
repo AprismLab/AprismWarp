@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
@@ -48,6 +48,9 @@ test('supports pattern and const', () => {
     assert.equal(validate(schema, {id: 'Bad', kind: 'animal'}).valid, false);
     assert.equal(validate(schema, {id: 'ok', kind: 'plant'}).valid, false);
 });
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 test('supports enums and unique items', () => {
     const result = validate(baseSchema, {name: 'Ada', tags: ['a', 'a']});

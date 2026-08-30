@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const fs = require('node:fs');
 const os = require('node:os');
@@ -48,6 +48,9 @@ function readModEditorMetadata(awpPath) {
         try {
             editor = JSON.parse(editorBytes.toString('utf8'));
         } catch (error) {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
             throw new Error(`AJE-COMPILE-003: editor/project.json is invalid JSON: ${error.message}`);
         }
     }
@@ -98,6 +101,9 @@ function buildModManifest(project) {
         id: projectId,
         version,
         displayName,
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         description,
         environment,
         entrypoints,
@@ -148,6 +154,9 @@ function normaliseEntrypoints(value) {
         if (!Array.isArray(list)) {
             throw new Error(`AJE-COMPILE-017: entrypoints.${key} must be a string or array.`);
         }
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         for (const entry of list) {
             if (typeof entry === 'string' && entry.trim()) result[key].push(entry.trim());
         }
@@ -198,6 +207,9 @@ function normaliseDependencies(value) {
  * @returns {{resources: Array<{name: string, data: Buffer}>, mixins: Array<{name: string, data: Buffer}>, lib: Array<{name: string, data: Buffer}>}}
  */
 function collectCollectionEntries(files) {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     const buckets = {resources: [], mixins: [], lib: []};
     for (const [name, data] of files) {
         if (name === AJE_MANIFEST || name === 'ir/project.json' || name === 'awp.json' || name === 'editor/project.json') continue;
@@ -248,6 +260,9 @@ function generateAje(awpPath, ajePath, options = {}) {
     if (!modJar) {
         throw new Error(`AJE-COMPILE-030: ${MOD_JAR_PATH} is required inside the .awp project.`);
     }
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     if (!Buffer.isBuffer(modJar)) {
         throw new Error(`AJE-COMPILE-031: ${MOD_JAR_PATH} must be raw bytes.`);
     }
@@ -298,6 +313,9 @@ function generateAje(awpPath, ajePath, options = {}) {
  * @param {boolean} [options.updateAwp=true] whether to rewrite the .awp
  * @returns {{manifest: object, lock: object, ajePath: string, awpPath: string, checksumsPath: string}}
  */
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 function generateAjeAndLock(awpPath, ajePath, options = {}) {
     const updateAwp = options.updateAwp !== false;
     const awpOutPath = options.awpOutPath || awpPath;
@@ -348,6 +366,9 @@ function writeAje(ajePath, archiveEntries) {
     const local = [];
     const central = [];
     let offset = 0;
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     for (const name of names) {
         const data = Buffer.from(archiveEntries[name]);
         const entry = buildLocalHeader(name, data, offset);
@@ -398,6 +419,9 @@ function crc32(buffer) {
 }
 
 function buildLocalHeader(name, data, offset) {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     const nameBytes = Buffer.from(name, 'utf8');
     const header = Buffer.alloc(30 + nameBytes.length);
     header.writeUInt32LE(0x04034b50, 0);
@@ -448,6 +472,9 @@ function buildCentralHeader(entry) {
  * @returns {{modJar: Buffer, entryClass: string, source: string}}
  */
 function produceModJar(awpPath, options = {}) {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     const project = readModEditorMetadata(awpPath);
     const java = require('./java');
     if (!java.isJavacAvailable(options.javac)) {
@@ -498,6 +525,9 @@ function produceModJar(awpPath, options = {}) {
 function generateAjeAndBuild(awpPath, ajePath, options = {}) {
     const project = readModEditorMetadata(awpPath);
     const hasModJar = project.files.get(MOD_JAR_PATH);
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     const shouldBuild = options.build === true || !hasModJar;
     const overrides = Object.assign({}, options);
     if (shouldBuild) {

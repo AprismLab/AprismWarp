@@ -57,7 +57,7 @@
 - [DONE] Verified Aprism core tests with Gradle 9.5.1 and JDK 21: `aprism-api`, `aprism-manifest`, `aprism-loader-core`, and `aprism-packaging` passed.
 - [NOTE] Initial test invocation failed because the inherited `JAVA_HOME` pointed to a missing JDK; validation used a process-local JDK 21 override and did not change the user environment.
 - [TODO] Resolve Aprism lifecycle instance identity behavior before generating stateful cross-phase code.
-- [TODO] Select the verified JE 26.2 profile and encode it in the `.awp` target schema.
+- [DONE] Selected the verified JE 26.2 + Aprism v26.8-Alpha.7 profile and encoded it in `src/compile/target-profile.js` with IR validator enforcement (AWP-IR-009).
 - [DONE] Defined no-project creation fields: Minecraft version, Aprism version, and `AprismJEMod`/`AprismExtension` work type.
 - [TODO] Implement the no-project creation wizard and work-type-specific editor palettes.
 - [DONE] Added work-type-aware IR validation, schemas, minimal `AprismJEMod` fixture, and extension validation tests.
@@ -118,3 +118,17 @@
 - [OPEN] `AprismWarp` still needs its `.awp` reader/writer, desktop bridge,
   compiler, and actual editor palette integration. This Alpha delivers the
   secure archive-to-catalog foundation, not the complete GUI product.
+
+### 2026-08-30 - Schema validator and target profile
+
+- [DONE] Implemented a dependency-free JSON Schema validator (`src/schema/validate.js`) supporting `type`, `properties`, `required`, `additionalProperties`, `enum`, `const`, `pattern`, `minimum`, `maximum`, `minLength`, `maxLength`, `minItems`, `uniqueItems`, and `$ref`/`$defs`.
+- [DONE] Integrated schema validation into `readAwp` via opt-in `configureSchemaPaths` API; CLI scripts `generate-aep.js` and `generate-aje.js` enable validation by default.
+- [DONE] Added 17 new schema validation tests across `test/schema/` covering positive and negative cases.
+- [DONE] Implemented verified target profile module (`src/compile/target-profile.js`) with `findVerifiedProfile`, `listVerifiedProfiles`, and `normaliseAprismVersion`.
+- [DONE] Wired target profile check into IR validator as AWP-IR-009 diagnostic for unrecognised Minecraft/Aprism version pairs.
+- [DONE] Added 8 target profile tests verifying profile matching, SemVer normalisation, frozen exports, and IR integration.
+- [DONE] Added development watermarks to all source and test files per BC convention.
+- [DONE] Fixed `normaliseAprismVersion` to handle Aprism `v26.8-Alpha.7` format.
+- [DONE] Test suite now runs 129 tests, all passing.
+
+<!-- GitHub@NDBlockConnect | BlockConnect@StarsailsClover -->

@@ -10,3 +10,4 @@ workspace/
 runtime/
 artifacts/
 matrix-inline-output-*.xml
+matrix-inline-output-do-not-commit.xml

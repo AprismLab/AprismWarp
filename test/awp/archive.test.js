@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -43,13 +46,13 @@ function project() {
         ])
     };
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('writes and reads a deterministic AWP archive', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'aprismwarp-awp-'));
     const first = path.join(dir, 'first.awp');
     const second = path.join(dir, 'second.awp');
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     const data = project();
 
@@ -97,12 +100,12 @@ test('rejects invalid target profile even when archive structure is valid', () =
     assert.throws(() => writeAwp(file, data), /AWP-MANIFEST-004/);
     fs.rmSync(dir, {recursive: true, force: true});
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function makeStoredZip(entries) {
     const locals = [];
     const centrals = [];
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     let offset = 0;
     for (const [name, data] of entries) {
@@ -139,6 +142,7 @@ function makeStoredZip(entries) {
     eocd.writeUInt32LE(offset, 16);
     return Buffer.concat([...locals, directory, eocd]);
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function crc32(buffer) {
     let crc = 0xffffffff;
@@ -150,3 +154,4 @@ function crc32(buffer) {
     }
     return (crc ^ 0xffffffff) >>> 0;
 }
+

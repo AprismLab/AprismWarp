@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
@@ -47,9 +50,8 @@ test('findVerifiedProfile returns null for unknown combinations', () => {
     assert.equal(findVerifiedProfile(null), null);
     assert.equal(findVerifiedProfile({}), null);
 });
-
-
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 test('validateIr accepts the verified target', () => {
     const result = validateIr(minimalIr());
@@ -77,3 +79,4 @@ test('VERIFIED_PROFILES is frozen and exported', () => {
     assert.equal(Object.isFrozen(VERIFIED_PROFILES[0]), true);
     assert.throws(() => { VERIFIED_PROFILES[0].minecraft = '26.99'; });
 });
+

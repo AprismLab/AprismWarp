@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const EXTENSION_TYPES = new Set([
     'loader-support',
@@ -51,6 +54,8 @@ function buildExtensionManifest(input) {
 
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
+
+
         throw new Error('EXT-004: target edition must be JE or BE.');
     }
     const type = String(extension.type || '').trim();
@@ -100,9 +105,11 @@ function buildExtensionManifest(input) {
     const mcEdit = (input.target && input.target.edition) || 'JE';
     const mcVersion = (input.target && input.target.minecraft) || '';
 
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
+
     const manifest = {
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         extensionId: projectId,
         version,
@@ -144,6 +151,7 @@ function sanitizeStringList(value, field) {
     }
     return [...seen];
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function sanitizeDependMap(value, field) {
     if (value === undefined || value === null) return {};
@@ -155,7 +163,6 @@ function sanitizeDependMap(value, field) {
         if (!ID_PATTERN.test(id)) {
             throw new Error(`EXT-031: ${field} contains invalid extension id: ${id}.`);
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         }
         const rangeText = String(range || '').trim();
@@ -201,6 +208,9 @@ function validateExtensionManifest(manifest) {
         error('EXT-V006', 'entrypoint must be a fully-qualified Java class name.');
     }
     if (!manifest.displayName) {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         error('EXT-V007', 'displayName is required.');
     }
     if (!manifest.description) {
@@ -208,7 +218,6 @@ function validateExtensionManifest(manifest) {
     }
     if (manifest.mcEdit && manifest.mcEdit !== 'JE' && manifest.mcEdit !== 'BE') {
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         error('EXT-V009', 'mcEdit must be JE or BE.');
     }
@@ -226,3 +235,4 @@ function validateExtensionManifest(manifest) {
 }
 
 module.exports = {buildExtensionManifest, validateExtensionManifest, EXTENSION_TYPES, LOADER_KEYS};
+

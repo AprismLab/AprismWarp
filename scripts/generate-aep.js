@@ -1,5 +1,8 @@
 'use strict';
 
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
+
 const path = require('node:path');
 const {generateAep, generateAepAndLock} = require('../src/compile/aep');
 const {configureSchemaPaths} = require('../src/awp/archive');
@@ -34,6 +37,7 @@ function parseArgs(argv) {
     }
     return {positional, lock, out};
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function main(argv) {
     const args = parseArgs(argv);
@@ -69,3 +73,4 @@ function main(argv) {
 }
 
 main(process.argv);
+

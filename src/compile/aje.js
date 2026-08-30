@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const fs = require('node:fs');
 const os = require('node:os');
@@ -51,6 +54,8 @@ function readModEditorMetadata(awpPath) {
 
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
+
+
             throw new Error(`AJE-COMPILE-003: editor/project.json is invalid JSON: ${error.message}`);
         }
     }
@@ -99,10 +104,12 @@ function buildModManifest(project) {
     const manifest = {
         schemaVersion: 1,
         id: projectId,
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         version,
         displayName,
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         description,
         environment,
@@ -150,12 +157,14 @@ function normaliseEntrypoints(value) {
         if (typeof list === 'string') {
             result[key].push(list);
             continue;
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         }
         if (!Array.isArray(list)) {
             throw new Error(`AJE-COMPILE-017: entrypoints.${key} must be a string or array.`);
         }
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         for (const entry of list) {
             if (typeof entry === 'string' && entry.trim()) result[key].push(entry.trim());
@@ -195,6 +204,7 @@ function normaliseDependencies(value) {
     }
     return result;
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 /**
  * Collects resource, mixin, and lib files from the .awp project archive.
@@ -208,7 +218,6 @@ function normaliseDependencies(value) {
  */
 function collectCollectionEntries(files) {
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     const buckets = {resources: [], mixins: [], lib: []};
     for (const [name, data] of files) {
@@ -252,6 +261,9 @@ function isSafeResourcePath(name) {
  * @param {object} [options]
  * @param {Buffer} [options.modJar] override for the embedded mod main jar
  * @returns {{manifest: object, entries: string[], checksumsPath: string}}
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
  */
 function generateAje(awpPath, ajePath, options = {}) {
     const project = readModEditorMetadata(awpPath);
@@ -261,7 +273,6 @@ function generateAje(awpPath, ajePath, options = {}) {
         throw new Error(`AJE-COMPILE-030: ${MOD_JAR_PATH} is required inside the .awp project.`);
     }
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     if (!Buffer.isBuffer(modJar)) {
         throw new Error(`AJE-COMPILE-031: ${MOD_JAR_PATH} must be raw bytes.`);
@@ -295,6 +306,7 @@ function generateAje(awpPath, ajePath, options = {}) {
     const checksumsPath = writeChecksumsFile(ajePath, archiveEntries);
     return {manifest, entries: Object.keys(archiveEntries), checksumsPath};
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 /**
  * Compiles an .awp project to .aje and writes the resulting AJE hash back
@@ -314,7 +326,6 @@ function generateAje(awpPath, ajePath, options = {}) {
  * @returns {{manifest: object, lock: object, ajePath: string, awpPath: string, checksumsPath: string}}
  */
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function generateAjeAndLock(awpPath, ajePath, options = {}) {
     const updateAwp = options.updateAwp !== false;
@@ -348,6 +359,7 @@ function generateAjeAndLock(awpPath, ajePath, options = {}) {
     const checksumsPath = `${ajePath}.checksums.txt`;
     return {manifest: manifestCopy, lock, ajePath, awpPath: awpOutPath, checksumsPath};
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function inspectAjeEntries(ajePath) {
     const {inspectArchive} = require('../awp/archive');
@@ -367,7 +379,6 @@ function writeAje(ajePath, archiveEntries) {
     const central = [];
     let offset = 0;
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     for (const name of names) {
         const data = Buffer.from(archiveEntries[name]);
@@ -402,6 +413,7 @@ function writeChecksumsFile(ajePath, archiveEntries) {
     fs.writeFileSync(checksumsPath, body);
     return checksumsPath;
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function dosTime() {
     return {date: 0x0021, time: 0};
@@ -420,7 +432,6 @@ function crc32(buffer) {
 
 function buildLocalHeader(name, data, offset) {
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     const nameBytes = Buffer.from(name, 'utf8');
     const header = Buffer.alloc(30 + nameBytes.length);
@@ -456,6 +467,9 @@ function buildCentralHeader(entry) {
     header.writeUInt32LE(entry.offset, 42);
     entry.nameBytes.copy(header, 46);
     return header;
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 }
 
 /**
@@ -473,7 +487,6 @@ function buildCentralHeader(entry) {
  */
 function produceModJar(awpPath, options = {}) {
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     const project = readModEditorMetadata(awpPath);
     const java = require('./java');
@@ -505,6 +518,7 @@ function produceModJar(awpPath, options = {}) {
         fs.rmSync(workDir, {recursive: true, force: true});
     }
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 /**
  * Compiles an .awp project to .aje. When {@link options.build} is true
@@ -526,7 +540,6 @@ function generateAjeAndBuild(awpPath, ajePath, options = {}) {
     const project = readModEditorMetadata(awpPath);
     const hasModJar = project.files.get(MOD_JAR_PATH);
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     const shouldBuild = options.build === true || !hasModJar;
     const overrides = Object.assign({}, options);
@@ -546,3 +559,4 @@ function generateAjeAndBuild(awpPath, ajePath, options = {}) {
 }
 
 module.exports = {generateAje, generateAjeAndLock, generateAjeAndBuild, produceModJar, readModEditorMetadata, buildModManifest, AJE_MANIFEST, MOD_JAR_PATH};
+

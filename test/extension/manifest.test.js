@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
@@ -40,6 +43,7 @@ test('builds a manifest from a clean API-extension IR', () => {
     assert.equal(manifest.loaderKey, undefined);
     assert.equal(manifest.loaderRange, undefined);
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('builds a loader-support manifest with the correct key and range', () => {
     const manifest = buildExtensionManifest(input({
@@ -49,7 +53,6 @@ test('builds a loader-support manifest with the correct key and range', () => {
         loaderRange: '>=0.19.0',
         provides: ['aprismwarp:fabric-blocks']
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     }));
 
@@ -96,13 +99,13 @@ test('rejects duplicate provides', () => {
 test('rejects invalid depends extension id', () => {
     assert.throws(() => buildExtensionManifest(input({depends: {'Bad_Id': '>=1.0.0'}})), /EXT-031/);
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('rejects missing required fields', () => {
     let displayNameErr = null;
     let descriptionErr = null;
     try {
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         buildExtensionManifest(input({}, {displayName: ''}));
     } catch (error) {
@@ -148,3 +151,4 @@ test('validateExtensionManifest rejects a manifest with missing loaderKey for lo
     assert.equal(result.valid, false);
     assert.ok(result.diagnostics.some(d => d.code === 'EXT-V010'));
 });
+

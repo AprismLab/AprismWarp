@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const {findVerifiedProfile, listVerifiedProfiles} = require('../compile/target-profile');
 
@@ -39,6 +42,7 @@ function validateIr(ir, options = {}) {
     const report = (code, message, nodeId = null) => {
         diagnostics.push({code, severity: 'error', message, nodeId});
     };
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     if (mode !== 'preview' && mode !== 'export') {
         report('AWP-IR-000', `Unknown validation mode: ${mode}`);
@@ -49,7 +53,6 @@ function validateIr(ir, options = {}) {
         return {valid: false, diagnostics};
     }
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     if (ir.irVersion !== 1) {
         report('AWP-IR-002', 'IR version must be 1.');
@@ -85,6 +88,7 @@ function validateIr(ir, options = {}) {
     } else if (ir.extension !== undefined) {
         report('AWP-IR-055', 'AprismJEMod cannot declare AprismExtension metadata.');
     }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     const initHandlers = ir.handlers.filter(handler => isRecord(handler) && handler.event === 'lifecycle.init');
     let requiresInit = false;
@@ -102,7 +106,6 @@ function validateIr(ir, options = {}) {
 
     return {valid: diagnostics.length === 0, diagnostics};
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 }
 
@@ -150,12 +153,14 @@ function validateDeclaration(node, report, seenNodeIds) {
     if (node.declaration === 'block') {
         validateResourceKey(node.id, report, nodeId);
         if (!Number.isFinite(node.hardness) || !Number.isFinite(node.resistance)) {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
             report('AWP-IR-014', 'Block hardness and resistance must be numbers.', nodeId);
         }
         if (!Number.isInteger(node.luminance) || node.luminance < 0 || node.luminance > 15) {
             report('AWP-IR-015', 'Block luminance must be between 0 and 15.', nodeId);
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         }
     }
@@ -188,6 +193,7 @@ function validateHandler(node, report, seenNodeIds, mode) {
         validateAction(action, report, seenNodeIds, mode);
     }
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function validateAction(node, report, seenNodeIds, mode) {
     const nodeId = nodeIdOf(node);
@@ -208,7 +214,6 @@ function validateAction(node, report, seenNodeIds, mode) {
     }
     if (node.action === 'schedule.once' || node.action === 'wait') {
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         validatePositiveTicks(node.delayTicks, report, nodeId);
     }
@@ -251,6 +256,7 @@ function validatePositiveTicks(value, report, nodeId) {
 function isSafeRelativePath(value) {
     return isNonBlankString(value) && !value.includes('\\') && !value.startsWith('/') && !value.split('/').includes('..');
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function isProjectId(value) {
     return typeof value === 'string' && /^[a-z][a-z0-9_-]{1,63}$/.test(value);
@@ -260,8 +266,6 @@ function isNodeId(value) {
     return typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(value);
 }
 
-
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function isNonBlankString(value) {
     return typeof value === 'string' && value.trim().length > 0;
@@ -276,3 +280,4 @@ function nodeIdOf(value) {
 }
 
 module.exports = {validateIr, listVerifiedProfiles};
+

@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -51,6 +54,8 @@ function buildExtensionAwp(workspaceDir, name = 'example-extension', overrides =
 
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
+
+
         ['build/extension.jar', Buffer.from('placeholder-extension-jar')]
     ]);
     if (overrides.editorCatalog) {
@@ -99,10 +104,11 @@ function buildModAwp(workspaceDir, name = 'example-mod', overrides = {}) {
     ]);
     writeAwp(awpPath, {manifest, ir, files});
     return {awpPath, manifest, ir, editor};
-}
-
 
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
+}
+
 
 test('dual-format workspace: extension and mod AWP both compile to their respective formats', () => {
     const dir = makeTempDir('integ-dual');
@@ -139,6 +145,7 @@ test('cross-format compile protection: AEP compiler refuses AJE AWP and vice ver
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('lock coexistence: a project manifest accepts both aepCapabilities and ajeCapabilities', () => {
     const dir = makeTempDir('integ-lock');
@@ -155,7 +162,6 @@ test('lock coexistence: a project manifest accepts both aepCapabilities and ajeC
             }
         });
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         const mod = buildModAwp(dir, 'example-mod');
         const aepPath = path.join(dir, 'example-extension.aep');
@@ -202,13 +208,15 @@ test('AEP editor catalog capability ids propagate to the lock entry', () => {
         const result = generateAepAndLock(ext.awpPath, aepPath);
         assert.deepEqual(result.lock.capabilities, ['example-extension:registry']);
     } finally {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
 
 test('AJE compile preserves unrelated manifest fields after round-trip', () => {
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     const dir = makeTempDir('integ-preserve');
     try {
@@ -253,3 +261,7 @@ test('AEP and AJE compiles are deterministic across runs', () => {
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
+

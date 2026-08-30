@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
@@ -41,6 +44,7 @@ test('flags type, range, and length errors together', () => {
     assert.ok(result.errors.some(e => e.code === 'SCHEMA-007'));
     assert.ok(result.errors.some(e => e.code === 'SCHEMA-003'));
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('supports pattern and const', () => {
     const schema = {type: 'object', required: ['id'], properties: {id: {type: 'string', pattern: '^[a-z]+$'}, kind: {const: 'animal'}}};
@@ -49,7 +53,6 @@ test('supports pattern and const', () => {
     assert.equal(validate(schema, {id: 'ok', kind: 'plant'}).valid, false);
 });
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 
 test('supports enums and unique items', () => {
@@ -94,3 +97,4 @@ test('returns errors array, not thrown exception', () => {
     assert.equal(result.valid, false);
     assert.ok(result.errors.length > 0);
 });
+

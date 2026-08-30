@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -51,6 +54,8 @@ function minimalIr(overrides = {}) {
 
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
+
+
         ]
     }, overrides);
 }
@@ -100,9 +105,11 @@ test('generateJavaSource emits preview-only action comments and skips unsupporte
     assert.ok(source.includes('// unsupported action: mystery'));
 });
 
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
+
 test('generateJavaSource omits resource paths and other unsupported declarations gracefully', () => {
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     const source = generateJavaSource(minimalIr({
         declarations: [
@@ -150,12 +157,14 @@ test('end-to-end: AWP with Java generator produces a loadable .aje', {skip: !isJ
             name: 'E2E Mod',
             workType: 'AprismJEMod',
             workProfile: {minecraftVersion: '26.2', aprismVersion: 'v26.8-Alpha.7', workType: 'AprismJEMod'},
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
             target: {edition: 'JE', minecraft: '26.2', aprism: 'v26.8-Alpha.7'},
             source: {editor: 'aprismwarp-native', project: 'editor/project.json', ir: 'ir/project.json'}
         };
         const ir = minimalIr({projectId: 'e2e-mod'});
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         ir.target = {edition: 'JE', minecraft: '26.2', aprism: 'v26.8-Alpha.7'};
         const editor = {
@@ -185,3 +194,4 @@ test('end-to-end: AWP with Java generator produces a loadable .aje', {skip: !isJ
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
+

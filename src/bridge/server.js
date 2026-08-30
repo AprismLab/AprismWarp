@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const http = require('node:http');
 const crypto = require('node:crypto');
@@ -52,6 +55,8 @@ function verifyLoopbackPeer(req) {
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 
+
+
 /**
  * Reads the request body into a buffer with a size limit. The body is
  * expected to be UTF-8 JSON.
@@ -92,6 +97,7 @@ function constantTimeEquals(a, b) {
     if (a.length !== b.length) return false;
     return crypto.timingSafeEqual(Buffer.from(a, 'utf8'), Buffer.from(b, 'utf8'));
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 /**
  * Extracts the bearer token from the Authorization header, returning null
@@ -102,7 +108,6 @@ function constantTimeEquals(a, b) {
  */
 function extractBearerToken(req) {
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     const header = req.headers.authorization || req.headers.Authorization;
     if (typeof header !== 'string') return null;
@@ -144,6 +149,7 @@ function buildCapabilityPayload(options = {}) {
 function wrapSuccess(payload) {
     return payload;
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 /**
  * Wraps an error into the bridge error envelope. Status code falls back
@@ -155,7 +161,6 @@ function wrapSuccess(payload) {
 function wrapError(error) {
     const statusCode = Number.isInteger(error.statusCode) ? error.statusCode : 500;
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     const code = typeof error.code === 'string' ? error.code : 'BRIDGE-INT-001';
     const message = error.exposeMessage === false ? 'internal error' : (error.message || 'internal error');
@@ -199,6 +204,7 @@ async function dispatchRequest(req, res, routes, context) {
     }
     return await handler({body, context});
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 /**
  * Validates a path argument does not escape a root directory.
@@ -208,7 +214,6 @@ async function dispatchRequest(req, res, routes, context) {
  * @returns {string} resolved safe path
  */
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function safePath(root, candidate) {
     if (typeof candidate !== 'string' || !candidate) {
@@ -252,6 +257,9 @@ function buildRoutes(handlers) {
     use('GET', '/api/v1/status', () => wrapSuccess(handlers.status()));
     use('POST', '/api/v1/projects/validate', ({body}) => wrapSuccess(handlers.validateIr(body)));
     use('POST', '/api/v1/projects/package', ({body}) => wrapSuccess(handlers.packageAje(body)));
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     return routes;
 }
 
@@ -261,7 +269,6 @@ function buildRoutes(handlers) {
  *
  * @param {string|undefined} candidate
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
  * @returns {string} the resolved loopback host
  */
@@ -303,6 +310,9 @@ function start(options = {}) {
                 throw error;
             }
             return options.validateIr(body);
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         },
         packageAje: (body) => {
             if (!body || !body.awpPath || !body.outputPath) {
@@ -314,7 +324,6 @@ function start(options = {}) {
             const outputPath = safePath(options.artifactRoot || process.cwd(), body.outputPath);
             const result = options.packageAje({
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
                 awpPath: path.resolve(body.awpPath),
                 outputPath,
@@ -349,6 +358,7 @@ function start(options = {}) {
             res.end(JSON.stringify(wrapped.body));
         }
     });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     return new Promise((resolve, reject) => {
         const listenPort = Number.isInteger(options.port) ? options.port : 0;
@@ -367,7 +377,6 @@ function start(options = {}) {
  * using the bound handle.
  *
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
  * @param {object} handle bridge handle from {@link start}
  * @param {string} method HTTP method
@@ -405,6 +414,9 @@ async function request(handle, method, path, body) {
                 } catch (error) {
                     reject(error);
                 }
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
             });
         });
         req.on('error', reject);
@@ -414,3 +426,4 @@ async function request(handle, method, path, body) {
 }
 
 module.exports = {start, request, isLoopbackHost, generateToken, BRIDGE_SCHEMA, ERROR_SCHEMA};
+

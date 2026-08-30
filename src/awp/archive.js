@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -47,9 +50,8 @@ function findSignatureBackwards(buffer, signature) {
     }
     return -1;
 }
-
-
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 function readCentralDirectory(archive) {
     const eocd = findSignatureBackwards(archive, 0x06054b50);
@@ -100,9 +102,11 @@ function readEntry(archive, entry) {
         throw new Error(`AWP-ARCHIVE-007: invalid local header: ${entry.name}`);
     }
     const nameLength = archive.readUInt16LE(entry.localOffset + 26);
-    const extraLength = archive.readUInt16LE(entry.localOffset + 28);
 
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
+    const extraLength = archive.readUInt16LE(entry.localOffset + 28);
+
 
     const start = entry.localOffset + 30 + nameLength + extraLength;
     const end = start + entry.compressedSize;
@@ -144,6 +148,7 @@ function parseJson(files, name, code) {
         throw new Error(`${code}: invalid JSON in ${name}: ${error.message}`);
     }
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function validateProject(manifest, ir) {
     if (manifest.format !== 'aprismwarp-project' || manifest.schemaVersion !== 1) {
@@ -155,7 +160,6 @@ function validateProject(manifest, ir) {
     }
     if (manifest.target?.minecraft !== manifest.workProfile.minecraftVersion
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         || manifest.target?.aprism !== manifest.workProfile.aprismVersion) {
         throw new Error('AWP-MANIFEST-004: target and workProfile versions do not match.');
@@ -188,6 +192,7 @@ function readAwp(archivePath) {
 function dosTime() {
     return {date: 0x0021, time: 0};
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function localHeader(name, data, offset) {
     const nameBytes = Buffer.from(name, 'utf8');
@@ -207,8 +212,6 @@ function localHeader(name, data, offset) {
     return {header, data, nameBytes, offset};
 }
 
-
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function centralHeader(entry) {
     const header = Buffer.alloc(46 + entry.nameBytes.length);
@@ -254,6 +257,9 @@ function writeAwp(archivePath, project, options = {}) {
     }
     const local = [];
     const central = [];
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     let offset = 0;
     for (const name of names) {
         const entry = localHeader(name, Buffer.from(values.get(name)), offset);
@@ -261,7 +267,6 @@ function writeAwp(archivePath, project, options = {}) {
         central.push(centralHeader(entry));
         offset += entry.header.length + entry.data.length;
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     }
     const directory = Buffer.concat(central);
@@ -276,3 +281,4 @@ function writeAwp(archivePath, project, options = {}) {
 }
 
 module.exports = {inspectArchive, readAwp, writeAwp, configureSchemaPaths, MAX_ENTRY_BYTES, MAX_ARCHIVE_BYTES};
+

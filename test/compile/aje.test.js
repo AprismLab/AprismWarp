@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -51,6 +54,8 @@ function buildModAwp(workspaceDir, overrides = {}) {
 
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
+
+
         version: '0.1.0',
         environment: '*',
         depends: {'example-dep': '>=1.0.0'}
@@ -99,10 +104,12 @@ test('generates a deterministic .aje with manifest, mod jar, resources, mixins, 
         const archiveDigest = crypto.createHash('sha256');
         for (const name of [...ajeFiles.keys()].sort()) {
             archiveDigest.update(ajeFiles.get(name));
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         }
         const expectedHeader = `${archiveDigest.digest('hex')}  ${path.basename(ajePath)}`;
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         assert.ok(checksums.includes(expectedHeader), 'checksums.txt must include the archive header digest');
     } finally {
@@ -144,6 +151,7 @@ test('rejects AprismExtension workType on the .awp project', () => {
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('rejects an AWP without the pre-compiled mod JAR', () => {
     const dir = makeTempDir('aje-nojar');
@@ -155,7 +163,6 @@ test('rejects an AWP without the pre-compiled mod JAR', () => {
         assert.throws(() => generateAje(awpPath, path.join(dir, 'out.aje')), /AJE-COMPILE-030/);
     } finally {
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         fs.rmSync(dir, {recursive: true, force: true});
     }
@@ -194,6 +201,7 @@ test('rejects resources that would collide with reserved archive sections', () =
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('produceModJar returns a JAR buffer with the IAprismMod class when javac is available', {skip: !isJavacAvailable()}, () => {
     const apiJar = resolveAprismApiJar(__dirname);
@@ -208,7 +216,6 @@ test('produceModJar returns a JAR buffer with the IAprismMod class when javac is
         const entries = inspectArchive(result.modJar);
         assert.ok(entries.get('META-INF/MANIFEST.MF'), 'expected JAR manifest');
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         const classKey = result.entryClass.replace(/\./g, '/') + '.class';
         assert.ok(entries.get(classKey), 'expected class file ' + classKey + ' inside JAR');
@@ -252,6 +259,9 @@ test('generateAjeAndBuild produces a complete .aje when no pre-built mod jar is 
         };
         const awpPath = path.join(dir, 'build-mod.awp');
         writeAwp(awpPath, {manifest, ir, files: new Map([
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
             ['editor/project.json', Buffer.from(JSON.stringify(editor, null, 2))]
         ])});
         const ajePath = path.join(dir, 'build-mod.aje');
@@ -261,7 +271,6 @@ test('generateAjeAndBuild produces a complete .aje when no pre-built mod jar is 
         const modJar = entries.get('build-mod.jar');
         assert.ok(modJar && modJar.length > 0);
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         const inner = inspectArchive(modJar);
         assert.ok(inner.get('com/aprismwarp/generated/Build_modMod.class'));
@@ -285,3 +294,4 @@ test('generateAjeAndBuild reuses the pre-built mod jar when --build is not set',
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
+

@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -41,6 +44,7 @@ test('rejects invalid item resource keys and stack sizes', () => {
     assertDiagnostic(result, 'AWP-IR-013');
     assertDiagnostic(result, 'AWP-IR-042');
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('allows preview-only actions only during preview validation', () => {
     const ir = structuredClone(example);
@@ -49,7 +53,6 @@ test('allows preview-only actions only during preview validation', () => {
         kind: 'action',
         action: 'wait',
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         delayTicks: 20,
         previewOnly: true
@@ -98,11 +101,11 @@ test('accepts a minimal AprismExtension project without JE content', () => {
         aprismRange: '>=26.0.0',
         provides: ['aprismwarp:preview']
     };
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     assert.equal(validateIr(ir).valid, true);
 });
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 
 test('rejects an unknown work type', () => {
@@ -127,3 +130,4 @@ function assertDiagnostic(result, code) {
     assert.ok(result.diagnostics.some(diagnostic => diagnostic.code === code),
         `Expected diagnostic ${code}, got ${JSON.stringify(result.diagnostics)}`);
 }
+

@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -52,6 +55,8 @@ function zip(entries) {
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 
+
+
 const manifest = {
     schema: 'aprismwarp.aep-editor/v1',
     extensionId: 'example-registry',
@@ -92,6 +97,7 @@ test('legacy AEP remains valid but exposes no editor blocks', () => {
     assert.deepEqual(result.blocks, []);
     fs.rmSync(file, {force: true});
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('rejects duplicate block ids and unsafe archive paths', () => {
     const file = path.join(process.env.TEMP || process.cwd(), 'hostile-editor.aep');
@@ -102,7 +108,6 @@ test('rejects duplicate block ids and unsafe archive paths', () => {
         ['../escape.txt', 'blocked']
     ]));
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     const result = inspectAep(file);
     assert.equal(result.valid, false);
@@ -132,3 +137,4 @@ test('rejects a deflated manifest that expands beyond the extraction limit', () 
     assert.ok(result.diagnostics.some(item => item.code === 'AEP-EDITOR-013'));
     fs.rmSync(file, {force: true});
 });
+

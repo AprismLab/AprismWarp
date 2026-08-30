@@ -1,5 +1,8 @@
 'use strict';
 
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
+
 const fs = require('node:fs');
 const path = require('node:path');
 const {validateIr} = require('../src/ir/validate');
@@ -13,3 +16,4 @@ if (!result.valid) {
 } else {
     console.log('Minimal IR validates for export.');
 }
+

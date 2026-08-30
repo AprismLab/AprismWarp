@@ -1,5 +1,8 @@
 'use strict';
 
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
+
 const path = require('node:path');
 const {verifyAepLockForAwp} = require('../src/extension/lock');
 
@@ -36,3 +39,4 @@ function main(argv) {
 }
 
 main(process.argv);
+

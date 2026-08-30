@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -51,6 +54,8 @@ function compile(ctx, schema) {
 
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
+
+
     if (Object.prototype.hasOwnProperty.call(schema, 'const')) {
         return {kind: 'const', value: schema.const};
     }
@@ -99,10 +104,12 @@ function walk(ctx, compiled, data, path, errors) {
             errors.push({
                 path,
                 code: 'SCHEMA-004',
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
                 message: `value must equal ${JSON.stringify(compiled.value)}`,
                 expected: compiled.value,
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
                 actual: data
             });
@@ -150,12 +157,14 @@ function walk(ctx, compiled, data, path, errors) {
     }
     if (compiled.minLength !== undefined && typeof data === 'string' && data.length < compiled.minLength) {
         errors.push({
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
             path,
             code: 'SCHEMA-009',
             message: `string must be at least ${compiled.minLength} characters`,
             actual: data
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         });
     }
@@ -201,6 +210,9 @@ function walk(ctx, compiled, data, path, errors) {
     }
     if (compiled.maxProperties !== undefined && isRecord(data) && Object.keys(data).length > compiled.maxProperties) {
         errors.push({
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
             path,
             code: 'SCHEMA-015',
             message: `object must have at most ${compiled.maxProperties} properties`,
@@ -208,7 +220,6 @@ function walk(ctx, compiled, data, path, errors) {
         });
     }
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     if (compiled.kind === 'object' && isRecord(data)) {
         if (compiled.required) {
@@ -252,6 +263,9 @@ function walk(ctx, compiled, data, path, errors) {
                     }
                 }
             } else {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
                 for (let i = 0; i < data.length; i += 1) {
                     walk(ctx, compiled.items, data[i], path + '[' + i + ']', errors);
                 }
@@ -260,8 +274,6 @@ function walk(ctx, compiled, data, path, errors) {
     }
 }
 
-
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function checkType(type, value) {
     if (Array.isArray(type)) {
@@ -290,6 +302,7 @@ function hasDuplicates(array) {
     }
     return false;
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function deepEqual(a, b) {
     if (a === b) return true;
@@ -314,7 +327,6 @@ function deepEqual(a, b) {
 
 function childPath(parent, key) {
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     if (parent === '') return key;
     return parent + '.' + key;
@@ -351,3 +363,4 @@ function clearCache() {
 }
 
 module.exports = {validate, validateFile, clearCache};
+

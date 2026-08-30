@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -51,6 +54,8 @@ function buildModAwp(workspaceDir, overrides = {}) {
 
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
+
+
         ['build/mod.jar', Buffer.from('placeholder-mod-jar')]
     ]);
     writeAwp(awpPath, {manifest, ir, files});
@@ -88,6 +93,7 @@ test('verifyAjeLock returns no match when no locks are declared', () => {
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('verifyAjeLock matches a freshly generated AJE after applyAjeLock', () => {
     const dir = makeTempDir('lock-aje-roundtrip');
@@ -102,7 +108,6 @@ test('verifyAjeLock matches a freshly generated AJE after applyAjeLock', () => {
         assert.equal(result.matched, true);
         assert.equal(result.expected, actual);
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         assert.equal(result.actual, actual);
         assert.equal(result.lock.id, 'example-mod');
@@ -144,6 +149,7 @@ test('verifyAjeLock warns when a lock id does not match the AJE mod id', () => {
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('applyAjeLock updates an existing lock entry rather than duplicating it', () => {
     const manifest = {extensions: {ajeCapabilities: [
@@ -155,7 +161,6 @@ test('applyAjeLock updates an existing lock entry rather than duplicating it', (
     assert.equal(manifest.extensions.ajeCapabilities[0].id, 'aa');
     assert.equal(manifest.extensions.ajeCapabilities[0].sha256, 'c'.repeat(64));
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     assert.equal(manifest.extensions.ajeCapabilities[0].version, '0.2.0');
     assert.equal(manifest.extensions.ajeCapabilities[1].id, 'bb');
@@ -201,6 +206,9 @@ test('verifyAjeLockForAwp flags a hash mismatch and exposes the AJE-LOCK-005 dia
         assert.ok(result.diagnostics.some(d => d.code === 'AJE-LOCK-005'));
     } finally {
         fs.rmSync(dir, {recursive: true, force: true});
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     }
 });
 
@@ -208,7 +216,6 @@ test('verifyAjeLockForAwp reports an AJE-LOCK-011 diagnostic when the AWP cannot
     const result = verifyAjeLockForAwp(path.join(os.tmpdir(), 'does-not-exist.aje'), path.join(os.tmpdir(), 'does-not-exist.awp'));
     assert.equal(result.checked, false);
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     assert.equal(result.matched, false);
     assert.ok(result.diagnostics.some(d => d.code === 'AJE-LOCK-011'));
@@ -242,6 +249,7 @@ test('generateAjeAndLock backfills the SHA-256 lock and rewrites the AWP', () =>
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('generateAjeAndLock writes the locked AWP to a separate path when awpOutPath is given', () => {
     const dir = makeTempDir('lock-aje-out');
@@ -261,8 +269,6 @@ test('generateAjeAndLock writes the locked AWP to a separate path when awpOutPat
 });
 
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
-
 test('generateAjeAndLock returns the updated manifest without writing when updateAwp is false', () => {
     const dir = makeTempDir('lock-aje-dry');
     try {
@@ -278,3 +284,4 @@ test('generateAjeAndLock returns the updated manifest without writing when updat
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
+

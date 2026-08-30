@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -51,6 +54,8 @@ function buildExtensionAwp(workspaceDir) {
 
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
+
+
     ])});
     return {awpPath, manifest, ir};
 }
@@ -94,6 +99,7 @@ test('getAepLocks normalises hashes and skips malformed entries', () => {
     assert.equal(locks[0].id, 'good');
     assert.equal(locks[0].sha256, 'abcdef' + '0'.repeat(58));
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('verifyAepLock returns no match when no locks are declared', () => {
     const dir = makeTempDir('lock-nolocks');
@@ -102,7 +108,6 @@ test('verifyAepLock returns no match when no locks are declared', () => {
         const aepPath = path.join(dir, 'output.aep');
         generateAep(awpPath, aepPath);
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         const result = verifyAepLock(aepPath, {extensions: {}});
         assert.equal(result.checked, false);
@@ -149,13 +154,13 @@ test('verifyAepLock flags a hash mismatch', () => {
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('verifyAepLock warns when a lock id does not match the AEP extensionId', () => {
     const dir = makeTempDir('lock-id');
     try {
         const {awpPath, manifest} = buildExtensionAwp(dir);
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         const aepPath = path.join(dir, 'output.aep');
         generateAep(awpPath, aepPath);
@@ -190,6 +195,7 @@ test('applyAepLock rejects malformed ids and hashes', () => {
     assert.throws(() => applyAepLock(manifest, '9bad', '0.1.0', 'd'.repeat(64), []), /AEP-LOCK-007/);
     assert.throws(() => applyAepLock(manifest, 'good', '0.1.0', 'short', []), /AEP-LOCK-006/);
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('verifyAepLockForAwp reads the AWP manifest and matches a freshly compiled AEP', () => {
     const dir = makeTempDir('lock-awp');
@@ -208,7 +214,6 @@ test('verifyAepLockForAwp reads the AWP manifest and matches a freshly compiled 
             capabilities: ['basic'],
             extension: {type: 'api-extension', aprismRange: '>=26.8.0'},
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
             declarations: [],
             handlers: []
@@ -251,6 +256,7 @@ test('verifyAepLockForAwp flags a hash mismatch and exposes the AEP-LOCK-005 dia
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('verifyAepLockForAwp reports an AEP-LOCK-011 diagnostic when the AWP cannot be read', () => {
     const result = verifyAepLockForAwp(path.join(os.tmpdir(), 'does-not-exist.aep'), path.join(os.tmpdir(), 'does-not-exist.awp'));
@@ -261,9 +267,9 @@ test('verifyAepLockForAwp reports an AEP-LOCK-011 diagnostic when the AWP cannot
 
 test('verifyAepLockForAwp requires a non-empty AWP path', () => {
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     const result = verifyAepLockForAwp(path.join(os.tmpdir(), 'whatever.aep'), '');
     assert.equal(result.checked, false);
     assert.ok(result.diagnostics.some(d => d.code === 'AEP-LOCK-010'));
 });
+

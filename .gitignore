@@ -9,3 +9,4 @@ upstream/scratch-vm/
 workspace/
 runtime/
 artifacts/
+matrix-inline-output-*.xml

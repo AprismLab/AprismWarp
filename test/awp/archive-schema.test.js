@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -35,6 +38,7 @@ function buildAwpFixture(workspaceDir) {
     writeAwp(awpPath, {manifest, ir});
     return awpPath;
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('readAwp accepts a well-formed AWP when schemas are configured', () => {
     const dir = makeTempDir('schema-ok');
@@ -49,7 +53,6 @@ test('readAwp accepts a well-formed AWP when schemas are configured', () => {
         assert.equal(project.ir.workType, 'AprismJEMod');
     } finally {
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         fs.rmSync(dir, {recursive: true, force: true});
     }
@@ -85,6 +88,7 @@ test('readAwp rejects an AWP whose manifest violates the schema', () => {
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('readAwp rejects an AWP whose IR violates the schema', () => {
     const dir = makeTempDir('schema-ir-bad');
@@ -102,7 +106,6 @@ test('readAwp rejects an AWP whose IR violates the schema', () => {
             workType: 'AprismJEMod',
             workProfile: {minecraftVersion: '26.2', aprismVersion: 'v26.8-Alpha.7', workType: 'AprismJEMod'},
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
             target: {edition: 'JE', minecraft: '26.2', aprism: 'v26.8-Alpha.7'},
             source: {editor: 'aprismwarp-native', project: 'editor/project.json', ir: 'ir/project.json'}
@@ -132,3 +135,4 @@ test('readAwp skips schema validation when no paths are configured', () => {
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
+

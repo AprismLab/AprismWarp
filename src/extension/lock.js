@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const crypto = require('node:crypto');
 const fs = require('node:fs');
@@ -42,6 +45,7 @@ function getAepLocks(manifest) {
     }
     return result;
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 /**
  * Verifies that the SHA-256 of a generated AEP file matches a lock entry
@@ -49,7 +53,6 @@ function getAepLocks(manifest) {
  * comparison is done against the `aprism.extension.json.extensionId` field
  * inside the AEP. The function never throws; it returns a result object
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
  * so callers can surface diagnostics without exception-handling.
  *
@@ -99,10 +102,12 @@ function verifyAepLock(aepPath, manifest) {
             code: 'AEP-LOCK-005', severity: 'error',
             message: `AEP hash mismatch for ${lock.id}: expected ${lock.sha256}, got ${actualHash}.`
         });
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         return {checked: true, matched: false, lock, expected: lock.sha256, actual: actualHash, diagnostics};
     }
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     return {checked: true, matched: false, lock: null, expected: null, actual: actualHash, diagnostics};
 }
@@ -150,12 +155,14 @@ function verifyAepLockForAwp(aepPath, awpPath) {
  * @returns {Array<object>} the updated `aepCapabilities` array
  */
 function applyAepLock(manifest, aepId, version, aepHash, capabilities) {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     if (!LOCK_ID_PATTERN.test(aepId)) {
         throw new Error('AEP-LOCK-007: aepId must be a lowercase Aprism identifier.');
     }
     if (!SHA256_PATTERN.test(aepHash)) {
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         throw new Error('AEP-LOCK-006: aepHash must be a 64-character hex SHA-256.');
     }
@@ -201,6 +208,9 @@ function getAjeLocks(manifest) {
             capabilities: Array.isArray(lock.capabilities) ? lock.capabilities.slice() : []
         });
     }
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     return result;
 }
 
@@ -208,7 +218,6 @@ function getAjeLocks(manifest) {
  * Verifies that the SHA-256 of a generated AJE file matches a lock entry
  * in the .awp project's `extensions.ajeCapabilities` array. The id
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
  * comparison is done against the `aprism.manifest.json.id` field inside
  * the AJE. The function never throws; it returns a result object so
@@ -252,6 +261,9 @@ function verifyAjeLock(ajePath, manifest) {
                 message: `lock id "${lock.id}" does not match AJE mod id "${ajeId}".`
             });
             continue;
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         }
         if (lock.sha256 === actualHash) {
             return {checked: true, matched: true, lock, expected: lock.sha256, actual: actualHash, diagnostics};
@@ -261,7 +273,6 @@ function verifyAjeLock(ajePath, manifest) {
             message: `AJE hash mismatch for ${lock.id}: expected ${lock.sha256}, got ${actualHash}.`
         });
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         return {checked: true, matched: false, lock, expected: lock.sha256, actual: actualHash, diagnostics};
     }
@@ -294,6 +305,7 @@ function verifyAjeLockForAwp(ajePath, awpPath) {
     }
     return verifyAjeLock(ajePath, manifest);
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 /**
  * Recomputes and rewrites the AWP project so its
@@ -314,7 +326,6 @@ function applyAjeLock(manifest, ajeId, version, ajeHash, capabilities) {
     if (!LOCK_ID_PATTERN.test(ajeId)) {
         throw new Error('AJE-LOCK-007: ajeId must be a lowercase Aprism identifier.');
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     }
     if (!SHA256_PATTERN.test(ajeHash)) {
@@ -341,3 +352,4 @@ function applyAjeLock(manifest, ajeId, version, ajeHash, capabilities) {
 }
 
 module.exports = {sha256Hex, getAepLocks, verifyAepLock, verifyAepLockForAwp, applyAepLock, getAjeLocks, verifyAjeLock, verifyAjeLockForAwp, applyAjeLock};
+

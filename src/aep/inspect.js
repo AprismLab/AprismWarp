@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const fs = require('node:fs');
 const zlib = require('node:zlib');
@@ -51,6 +54,8 @@ function readCentralDirectory(archive) {
 
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
+
+
         cursor = nameStart + nameLength + extraLength + commentLength;
     }
     return result;
@@ -96,13 +101,13 @@ function readEntry(archive, entry, maxOutputBytes = Number.MAX_SAFE_INTEGER) {
     }
     throw new Error(`AEP-ARCHIVE-006: unsupported ZIP compression method ${entry.method}.`);
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function isSafeEntryName(name) {
     return name.length > 0
         && !name.startsWith('/')
         && !name.includes('\\')
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         && !name.split('/').includes('..');
 }
@@ -150,12 +155,14 @@ function validateManifest(manifest) {
             continue;
         }
         for (const block of capability.blocks) {
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
             if (!isRecord(block) || !IDENTIFIER.test(block.id)
                 || typeof block.category !== 'string' || !block.category.trim()
                 || !SHAPES.has(block.shape) || !IR_KINDS.has(block.irKind)
                 || !IDENTIFIER.test(block.irOperation)) {
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
                 error('AEP-EDITOR-008', `invalid block declaration in ${capability.id}.`);
                 continue;
@@ -201,6 +208,9 @@ function inspectAep(archivePath) {
             diagnostics.push({code: 'AEP-EDITOR-011', severity: 'error',
                 message: `editor manifest exceeds ${MAX_MANIFEST_BYTES} bytes.`});
             return {valid: false, manifest: null, blocks: [], diagnostics, entries: names};
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
         }
         let manifest;
         try {
@@ -208,7 +218,6 @@ function inspectAep(archivePath) {
                 readEntry(archive, manifestEntry, MAX_MANIFEST_BYTES).toString('utf8')
             );
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         } catch (error) {
             if (String(error.message).startsWith('AEP-EDITOR-013:')) {
@@ -230,3 +239,4 @@ function inspectAep(archivePath) {
 }
 
 module.exports = {inspectAep, validateManifest, readCentralDirectory};
+

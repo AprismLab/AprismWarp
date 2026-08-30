@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 /**
  * The list of Aprism target profiles AprismWarp has verified end-to-end.
@@ -37,6 +40,7 @@ function normaliseAprismVersion(value) {
     const patch = match[3] || match[4] || '0';
     return match[1] + '.' + match[2] + '.' + patch;
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 /**
  * Returns the first verified profile that matches the requested
@@ -49,7 +53,6 @@ function normaliseAprismVersion(value) {
  * @returns {{minecraft: string, aprism: string, aprismRange: string}|null}
  */
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function findVerifiedProfile(target) {
     if (!target || typeof target !== 'object') return null;
@@ -80,3 +83,4 @@ function listVerifiedProfiles() {
 }
 
 module.exports = {findVerifiedProfile, listVerifiedProfiles, normaliseAprismVersion, VERIFIED_PROFILES};
+

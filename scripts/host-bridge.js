@@ -1,5 +1,8 @@
 'use strict';
 
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
+
 const path = require('node:path');
 const {start} = require('../src/bridge/server');
 const {validateIr} = require('../src/ir/validate');
@@ -38,6 +41,7 @@ function handleValidateIr(body) {
     const result = validateIr(body.ir, {mode: body.mode || 'export'});
     return {valid: result.valid, diagnostics: result.diagnostics};
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function handlePackageAje(args) {
     const awpPath = path.resolve(args.awpPath);
@@ -84,3 +88,4 @@ async function main(argv) {
 }
 
 main(process.argv);
+

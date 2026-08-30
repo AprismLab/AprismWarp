@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -51,6 +54,8 @@ function generateAep(awpPath, aepPath, options = {}) {
 
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
+
+
     const project = readEditorMetadata(awpPath);
     if (project.manifest.workType !== 'AprismExtension') {
         throw new Error(`AWP-COMPILE-001: .awp workType must be AprismExtension; got "${project.manifest.workType}".`);
@@ -92,6 +97,7 @@ function generateAep(awpPath, aepPath, options = {}) {
     if (!Buffer.isBuffer(jarEntry)) {
         throw new Error(`AWP-COMPILE-007: ${JAR_PATH} must be raw bytes.`);
     }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     const entries = {
         [AEP_PATH]: Buffer.from(JSON.stringify(manifest, null, 2) + '\n'),
@@ -102,7 +108,6 @@ function generateAep(awpPath, aepPath, options = {}) {
 
     const aepFiles = new Map(Object.entries(entries));
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     writeAep(aepPath, aepFiles);
     return {manifest, entries: Object.keys(entries)};
@@ -146,6 +151,7 @@ function generateAepAndLock(awpPath, aepPath, options = {}) {
             verification.diagnostics.map(d => d.message).join('; '));
     }
     const lock = getAepLocks(manifestCopy).find(entry => entry.id === extensionId) || null;
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     if (updateAwp) {
         const projectCopy = {
@@ -155,7 +161,6 @@ function generateAepAndLock(awpPath, aepPath, options = {}) {
         };
         writeAwp(awpOutPath, projectCopy);
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     }
 
@@ -190,6 +195,7 @@ function inspectAepEntries(aepPath) {
         throw new Error(`AWP-LOCK-BACKFILL-002: cannot parse AEP manifest: ${error.message}`);
     }
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function writeAep(aepPath, aepFiles) {
     const path = require('node:path');
@@ -208,7 +214,6 @@ function writeAep(aepPath, aepFiles) {
         const data = Buffer.from(aepFiles.get(name));
         const entry = buildLocalHeader(name, data, offset);
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         local.push(entry.header, entry.data);
         central.push(buildCentralHeader(entry));
@@ -240,6 +245,7 @@ function crc32(buffer) {
     }
     return (crc ^ 0xffffffff) >>> 0;
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function buildLocalHeader(name, data, offset) {
     const nameBytes = Buffer.from(name, 'utf8');
@@ -261,7 +267,6 @@ function buildLocalHeader(name, data, offset) {
 
 function buildCentralHeader(entry) {
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     const header = Buffer.alloc(46 + entry.nameBytes.length);
     header.writeUInt32LE(0x02014b50, 0);
@@ -282,3 +287,4 @@ function buildCentralHeader(entry) {
 }
 
 module.exports = {generateAep, generateAepAndLock, readEditorMetadata, AEP_PATH, JAR_PATH, EDITOR_MANIFEST_PATH};
+

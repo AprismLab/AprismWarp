@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -46,10 +49,10 @@ function buildModAwp(workspaceDir) {
     writeAwp(awpPath, {manifest, ir, files});
     return awpPath;
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 async function withBridge(options, body) {
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     const handle = await start(options);
     try {
@@ -93,6 +96,7 @@ test('status endpoint returns ok with the bridge schema', async () => {
         assert.equal(response.status, 'ok');
     });
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('missing bearer token is rejected with 401', async () => {
     await withBridge({validateIr: () => null, packageAje: () => null}, async handle => {
@@ -102,7 +106,6 @@ test('missing bearer token is rejected with 401', async () => {
         assert.equal(body.code, 'BRIDGE-AUTH-001');
         assert.equal(body.schema, ERROR_SCHEMA);
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     });
 });
@@ -141,6 +144,7 @@ test('validate endpoint accepts a valid IR and rejects an invalid one', async ()
         assert.ok(body.diagnostics.length > 0);
     });
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('package endpoint compiles an AWP into an AJE under the artifact root', async () => {
     const dir = makeTempDir('bridge-pkg');
@@ -155,7 +159,6 @@ test('package endpoint compiles an AWP into an AJE under the artifact root', asy
                 return generateAjeAndLock(a, outputPath, {updateAwp: lock});
             }
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         }, async handle => {
             return request(handle, 'POST', '/api/v1/projects/package', {
@@ -196,6 +199,7 @@ test('package endpoint rejects path traversal attempts', async () => {
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function minimalIr() {
     return {
@@ -208,7 +212,6 @@ function minimalIr() {
         handlers: []
     };
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 }
 
@@ -245,3 +248,4 @@ function callValidateRaw(handle, body) {
         req.end();
     });
 }
+

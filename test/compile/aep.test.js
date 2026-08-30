@@ -1,4 +1,7 @@
-﻿'use strict';
+'use strict';
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -51,6 +54,8 @@ function buildAwpFixture(workspaceDir) {
 
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
+
+
     };
     const jarBytes = Buffer.from('placeholder-extension-jar');
     const awpPath = path.join(workspaceDir, 'project.awp');
@@ -99,10 +104,12 @@ function writeStoredZip(zipPath, entries) {
     eocd.writeUInt16LE(entries.length, 10);
     eocd.writeUInt32LE(directory.length, 12);
     eocd.writeUInt32LE(offset, 16);
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     fs.writeFileSync(zipPath, Buffer.concat([...locals, directory, eocd]));
 }
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 
 function crc32(buffer) {
@@ -150,12 +157,14 @@ function buildMinimalModAwp(workspaceDir) {
         ['awp.json', Buffer.from(JSON.stringify(manifest, null, 2) + '\n')],
         ['ir/project.json', Buffer.from(JSON.stringify(ir, null, 2) + '\n')]
     ]);
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
     return awpPath;
 }
 
 function buildMissingEntrypointAwp(workspaceDir) {
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     const awpPath = path.join(workspaceDir, 'project.awp');
     const manifest = {
@@ -190,6 +199,7 @@ function buildMissingEntrypointAwp(workspaceDir) {
     ]);
     return awpPath;
 }
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 function buildMissingJarAwp(workspaceDir) {
     const awpPath = path.join(workspaceDir, 'project.awp');
@@ -208,7 +218,6 @@ function buildMissingJarAwp(workspaceDir) {
         source: {editor: 'aprismwarp-native', project: 'editor/project.json', ir: 'ir/project.json'}
     };
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     const ir = {
         irVersion: 1,
@@ -250,6 +259,7 @@ test('generates a deterministic AEP and round-trips through readAwp', () => {
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('two compilations produce identical AEP bytes', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'aprismwarp-aep-det-'));
@@ -261,7 +271,6 @@ test('two compilations produce identical AEP bytes', () => {
         generateAep(awpPath, aep2);
         assert.ok(fs.readFileSync(aep1).equals(fs.readFileSync(aep2)));
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
     } finally {
         fs.rmSync(dir, {recursive: true, force: true});
@@ -293,6 +302,7 @@ test('rejects an AWP whose editor metadata omits the entrypoint', () => {
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
 test('rejects an AWP missing the pre-compiled extension JAR', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'aprismwarp-aep-nojar-'));
@@ -314,7 +324,6 @@ test('generateAepAndLock backfills the SHA-256 lock and rewrites the AWP', () =>
         const aepPath = path.join(dir, 'output.aep');
         const result = generateAepAndLock(awpPath, aepPath);
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         assert.ok(result.lock, 'lock entry must be returned');
         assert.equal(result.lock.id, 'example-extension');
@@ -354,6 +363,9 @@ test('generateAepAndLock records capabilities from the editor manifest', () => {
         const aepPath = path.join(dir, 'output.aep');
         const result = generateAepAndLock(awpPath, aepPath);
         assert.deepEqual(result.lock.capabilities, [
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
             'example-extension:capability-a',
             'example-extension:capability-b'
         ]);
@@ -367,7 +379,6 @@ test('generateAepAndLock writes the locked AWP to a separate path when awpOutPat
     try {
         const {awpPath} = buildAwpFixture(dir);
 
-//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
         const aepPath = path.join(dir, 'output.aep');
         const outPath = path.join(dir, 'project.locked.awp');
@@ -397,3 +408,4 @@ test('generateAepAndLock returns the updated manifest without writing when updat
         fs.rmSync(dir, {recursive: true, force: true});
     }
 });
+

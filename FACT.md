@@ -43,13 +43,10 @@
 - [DONE] Cloned TurboWarp scratch-gui and scratch-vm shallow `develop` snapshots.
 - [DONE] Inspected GUI extension and Blockly interaction points as reference material only.
 - [DONE] Documented process boundary, license boundary, and first target profile.
-- [TODO] Build the local bridge host and capability endpoint.
 - [DONE] Built the local bridge host with token auth, path-traversal protection, and the `validate`/`package` endpoints (`src/bridge/server.js`, `npm run host:bridge`).
-- [TODO] Add the Aprism block extension and project-to-manifest compiler.
 - [DONE] Added the IR-to-Java source generator, javac integration, JAR packager, and the `--build` flag on the `.aje` pipeline (`src/compile/java.js`, `src/compile/aje.js`).
 - [TODO] Choose desktop shell: Tauri, Electron, or a thin local launcher plus browser UI.
 - [TODO] Validate MDL and Despotes control endpoints against a real isolated JE instance.
-- [TODO] Add generated-artifact tests and a real `.aje` integration test.
 - [DONE] Added a real `.aje` integration test that exercises the Java source generator, `javac`, JAR packaging, and the full `.awp → .aje` lock-backfill flow.
 - [DONE] Adopted `.awp` as the editable AprismWarp project extension and documented its container format.
 - [DONE] Added a dependency-free `.awp` ZIP reader/writer with deterministic stored entries, CRC checks, path safety, size limits, and manifest/IR consistency checks.
@@ -117,9 +114,9 @@
 - [DECISION] AEP v1 remains backward-compatible: the editor catalog is
   optional, root-level, declarative, bounded to 1 MiB, and never executed.
   Legacy AEPs remain valid but expose no Warp blocks.
-- [OPEN] `AprismWarp` still needs its `.awp` reader/writer, desktop bridge,
-  compiler, and actual editor palette integration. This Alpha delivers the
-  secure archive-to-catalog foundation, not the complete GUI product.
+- [RESOLVED 2026-08-30] The `.awp` reader/writer, desktop bridge, and compiler
+  listed as open here are now implemented (see the 2026-08-27/30 session log
+  entries); editor palette integration remains future work.
 
 ### 2026-08-30 - Schema validator and target profile
 

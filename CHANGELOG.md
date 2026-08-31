@@ -25,7 +25,10 @@ All notable changes are documented per the BC version control specification
 - `.aje` compile pipeline with Java source generation, `javac` integration,
   JAR packaging, `--build` flag, and SHA-256 lock backfill.
 - Loopback host bridge with bearer token auth, path-traversal protection, and
-  `validate` / `package` / `capabilities` / `status` endpoints.
+  `validate` / `package` / `capabilities` / `status` endpoints, plus project
+  store endpoints (`projects/create|open|save`) with entry-preserving saves.
+- No-project creation wizard core with work-type-specific editor palettes
+  covering the IR v0.1 surface; wizard output round-trips through `.awp`.
 - `.awe` editor-extension inspector: declarative manifest, blocks, and panel
   parsing with permission-consistency diagnostics; `runtime/` code is reported
   but never executed. `.awp` projects can lock enabled `.awe` extensions by

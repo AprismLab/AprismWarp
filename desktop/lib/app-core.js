@@ -7,6 +7,7 @@ const {start} = require(path.join(__dirname, '..', '..', 'src', 'bridge', 'serve
 const {validateIr} = require(path.join(__dirname, '..', '..', 'src', 'ir', 'validate'));
 const {readAwp} = require(path.join(__dirname, '..', '..', 'src', 'awp', 'archive'));
 const {generateAjeAndLock} = require(path.join(__dirname, '..', '..', 'src', 'compile', 'aje'));
+const {createProjectFile, openProjectFile, saveProjectFile} = require(path.join(__dirname, '..', '..', 'src', 'projects', 'store'));
 
 function handleValidateIr(body) {
     if (!body || !body.ir) {
@@ -44,17 +45,25 @@ function handlePackageAje(args) {
  * @returns {Promise<{host: string, port: number, token: string, bridgeUrl: string, close: Function}>}
  */
 async function startAppCore(options = {}) {
+    const projectRoot = options.projectRoot
+        ? path.resolve(options.projectRoot)
+        : path.join(__dirname, '..', '..', 'projects');
     const handle = await start({
         host: options.host,
         port: options.port,
         artifactRoot: options.artifactRoot
             ? path.resolve(options.artifactRoot)
             : path.join(__dirname, '..', '..', 'artifacts'),
+        projectRoot,
         validateIr: handleValidateIr,
-        packageAje: handlePackageAje
+        packageAje: handlePackageAje,
+        createProject: (spec) => createProjectFile(projectRoot, spec),
+        openProject: (projectPath) => openProjectFile(projectRoot, projectPath),
+        saveProject: (body) => saveProjectFile(projectRoot, body.path, body)
     });
     return Object.assign(handle, {
-        bridgeUrl: `http://${handle.host}:${handle.port}`
+        bridgeUrl: `http://${handle.host}:${handle.port}`,
+        projectRoot
     });
 }
 

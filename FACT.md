@@ -67,6 +67,7 @@
 - [DONE] Scaffolded the Electron desktop shell (`desktop/`): pure-Node app core (`desktop/lib/app-core.js`) boots the existing host bridge and is covered by 4 Node tests without launching Electron; thin `main.js` wrapper creates a contextIsolation BrowserWindow with a CSP-restricted placeholder renderer and an IPC preload.
 - [NOTE] `npm install` of the Electron binary failed twice with `ECONNRESET` against the GitHub release mirror; the devDependency is declared and the app core is testable, but `npm --prefix desktop start` remains blocked until the download succeeds.
 - [DONE] Implemented the no-project creation wizard core (`src/wizard/project.js`): `createProject(spec)` produces manifest/IR/editor metadata for both work types with a validated init scaffold, WIZ-001..006 diagnostics, and work-type-specific editor palettes (`WORK_TYPE_PALETTES`) covering the full IR v0.1 event/declaration/action surface. Wizard output round-trips through `writeAwp`/`readAwp`.
+- [DONE] Added project store endpoints to the bridge (`POST /api/v1/projects/create|open|save`) backed by `src/projects/store.js` with project-root traversal protection (`STORE-PATH-002/003`), entry-preserving saves, `BRIDGE-STORE-001..004` diagnostics, and a 501 fallback when the store is not configured. Wired into the CLI (`--project-root`) and the desktop app core (`userData/projects`).
 - [DONE] Adopted GPL-3.0-only for AprismWarp before importing or modifying TurboWarp scratch-gui code.
 
 ## 5. Acceptance Gates

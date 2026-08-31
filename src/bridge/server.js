@@ -253,14 +253,63 @@ function buildRoutes(handlers) {
     const use = (method, path, handler) => {
         if (typeof handler === 'function') routes.set(`${method} ${path}`, handler);
     };
+    const optional = (handler, code, message) => handler
+        ? handler
+        : () => {
+            const error = new Error(message);
+            error.code = code;
+            error.statusCode = 501;
+            throw error;
+        };
     use('GET', '/api/v1/capabilities', () => wrapSuccess(handlers.capabilities()));
     use('GET', '/api/v1/status', () => wrapSuccess(handlers.status()));
     use('POST', '/api/v1/projects/validate', ({body}) => wrapSuccess(handlers.validateIr(body)));
     use('POST', '/api/v1/projects/package', ({body}) => wrapSuccess(handlers.packageAje(body)));
+    use('POST', '/api/v1/projects/create', ({body}) => wrapSuccess(
+        optional(handlers.createProject, 'BRIDGE-STORE-001',
+            'project store is not configured on this bridge.')(requireSpec(body))
+    ));
+    use('POST', '/api/v1/projects/open', ({body}) => wrapSuccess(
+        optional(handlers.openProject, 'BRIDGE-STORE-001',
+            'project store is not configured on this bridge.')(requirePath(body))
+    ));
+    use('POST', '/api/v1/projects/save', ({body}) => wrapSuccess(
+        optional(handlers.saveProject, 'BRIDGE-STORE-001',
+            'project store is not configured on this bridge.')(requireSaveBody(body))
+    ));
+    return routes;
+}
 
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
-    return routes;
+function requireSpec(body) {
+    if (!body || !body.spec) {
+        const error = new Error('create requires a `spec` field');
+        error.code = 'BRIDGE-STORE-002';
+        error.statusCode = 400;
+        throw error;
+    }
+    return body.spec;
+}
+
+function requirePath(body) {
+    if (!body || !body.path) {
+        const error = new Error('open requires a `path` field');
+        error.code = 'BRIDGE-STORE-003';
+        error.statusCode = 400;
+        throw error;
+    }
+    return body.path;
+}
+
+function requireSaveBody(body) {
+    if (!body || !body.path || !body.manifest || !body.ir) {
+        const error = new Error('save requires `path`, `manifest`, and `ir` fields');
+        error.code = 'BRIDGE-STORE-004';
+        error.statusCode = 400;
+        throw error;
+    }
+    return body;
 }
 
 /**
@@ -330,7 +379,10 @@ function start(options = {}) {
                 lock: body.lock !== false
             });
             return wrapSuccess(result);
-        }
+        },
+        createProject: options.createProject ? (spec) => options.createProject(spec) : undefined,
+        openProject: options.openProject ? (projectPath) => options.openProject(projectPath) : undefined,
+        saveProject: options.saveProject ? (body) => options.saveProject(body) : undefined
     });
 
     const server = http.createServer(async (req, res) => {

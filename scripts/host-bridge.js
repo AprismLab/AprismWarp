@@ -8,20 +8,22 @@ const {start} = require('../src/bridge/server');
 const {validateIr} = require('../src/ir/validate');
 const {readAwp} = require('../src/awp/archive');
 const {generateAjeAndLock} = require('../src/compile/aje');
+const {createProjectFile, openProjectFile, saveProjectFile} = require('../src/projects/store');
 
 function usage() {
-    console.error('Usage: node scripts/host-bridge.js [--port <port>] [--host <host>] [--artifact-root <dir>]');
+    console.error('Usage: node scripts/host-bridge.js [--port <port>] [--host <host>] [--artifact-root <dir>] [--project-root <dir>]');
     console.error('  Starts the AprismWarp host bridge on the given loopback interface.');
     process.exitCode = 2;
 }
 
 function parseArgs(argv) {
-    const out = {port: undefined, host: undefined, artifactRoot: undefined};
+    const out = {port: undefined, host: undefined, artifactRoot: undefined, projectRoot: undefined};
     for (let i = 2; i < argv.length; i += 1) {
         const arg = argv[i];
         if (arg === '--port') out.port = Number(argv[++i]);
         else if (arg === '--host') out.host = argv[++i];
         else if (arg === '--artifact-root') out.artifactRoot = argv[++i];
+        else if (arg === '--project-root') out.projectRoot = argv[++i];
         else if (arg === '--help' || arg === '-h') return null;
         else {
             console.error(`host-bridge: unknown argument: ${arg}`);
@@ -64,14 +66,19 @@ async function main(argv) {
         return;
     }
     try {
+        const projectRoot = args.projectRoot ? path.resolve(args.projectRoot) : path.join(process.cwd(), 'projects');
         const handle = await start({
             host: args.host,
             port: args.port,
             artifactRoot: args.artifactRoot ? path.resolve(args.artifactRoot) : process.cwd(),
             validateIr: handleValidateIr,
-            packageAje: handlePackageAje
+            packageAje: handlePackageAje,
+            createProject: (spec) => createProjectFile(projectRoot, spec),
+            openProject: (projectPath) => openProjectFile(projectRoot, projectPath),
+            saveProject: (body) => saveProjectFile(projectRoot, body.path, body)
         });
         console.log(`AprismWarp host bridge ready: http://${handle.host}:${handle.port}`);
+        console.log(`Project root: ${projectRoot}`);
         console.log(`Authorization: Bearer ${handle.token}`);
         console.log('Press Ctrl+C to stop.');
         const shutdown = async signal => {

@@ -28,6 +28,7 @@ async function createWindow() {
         width: 1280,
         height: 800,
         title: 'AprismWarp',
+        show: !process.argv.includes('--smoke'),
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
@@ -43,13 +44,25 @@ async function createWindow() {
 
 app.whenReady().then(async () => {
     try {
-        await createWindow();
+        const window = await createWindow();
+        if (process.argv.includes('--smoke')) {
+            await ensureBridge();
+            console.log(`APRISMWARP_SMOKE_OK bridge=${bridgeHandle.bridgeUrl}`);
+            window.destroy();
+            app.exit(0);
+            return;
+        }
         app.on('activate', () => {
-            if (BrowserWindow.getAllWindows().length === 0) await createWindow();
+            if (BrowserWindow.getAllWindows().length === 0) {
+                createWindow().catch(error => {
+                    console.error(`AprismWarp failed to recreate window: ${error.message}`);
+                    app.exit(1);
+                });
+            }
         });
     } catch (error) {
         console.error(`AprismWarp failed to start: ${error.message}`);
-        app.quit();
+        app.exit(1);
     }
 });
 

@@ -27,6 +27,7 @@
 | D-07 | `.awp` is the editable project container; `.aje` is the generated AprismMod distribution. | Separation of design data and runtime artifact | [H] |
 | D-08 | AprismWarp-native extensions are authored as `AprismExtension` projects and export `.aep`; Java mods are authored as `AprismJEMod` projects and export `.aje`. | Aprism `.aep`/`.aje` contracts | [H] |
 | D-09 | Desktop shell is Electron, matching TurboWarp upstream (TurboWarp Desktop = Electron + scratch-gui). The shell reuses scratch-gui build recipes, and its main process owns the host bridge and MDL lifecycle per D-02. The zero-dependency discipline continues to bind the core toolchain packages; the GUI/desktop package carries the scratch-gui dependency tree. | Upstream TurboWarp architecture inspection; user confirmation | [V] |
+| D-10 | AprismWarp maintains a patched fork of scratch-gui under `gui/` (tracking upstream `a2946eeb`) with the smallest possible diff: entry swap, scratch-vm binding removal, `.awp` persistence, and the AprismWarp block catalog; every deviation is recorded in `gui/FORK.md`. | `docs/gui-integration.md` §4 | [H] |
 
 ## 3. Upstream Snapshot
 
@@ -68,6 +69,7 @@
 - [NOTE] `npm install` of the Electron binary failed twice with `ECONNRESET` against the GitHub release mirror; the devDependency is declared and the app core is testable, but `npm --prefix desktop start` remains blocked until the download succeeds.
 - [DONE] Implemented the no-project creation wizard core (`src/wizard/project.js`): `createProject(spec)` produces manifest/IR/editor metadata for both work types with a validated init scaffold, WIZ-001..006 diagnostics, and work-type-specific editor palettes (`WORK_TYPE_PALETTES`) covering the full IR v0.1 event/declaration/action surface. Wizard output round-trips through `writeAwp`/`readAwp`.
 - [DONE] Added project store endpoints to the bridge (`POST /api/v1/projects/create|open|save`) backed by `src/projects/store.js` with project-root traversal protection (`STORE-PATH-002/003`), entry-preserving saves, `BRIDGE-STORE-001..004` diagnostics, and a 501 fallback when the store is not configured. Wired into the CLI (`--project-root`) and the desktop app core (`userData/projects`).
+- [DONE] Completed the GUI integration design (`docs/gui-integration.md`): reuse map, substitution boundaries (blocks→IR, no scratch-vm, bridge persistence), block definition strategy from `WORK_TYPE_PALETTES`, fork strategy (D-10), and six GUI phases G1-G6 with gates.
 - [DONE] Adopted GPL-3.0-only for AprismWarp before importing or modifying TurboWarp scratch-gui code.
 
 ## 5. Acceptance Gates

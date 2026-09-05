@@ -258,11 +258,80 @@ function aprismWarpToolboxXML (workType) {
     </category>`;
 }
 
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
+const FIELD_OF_ACTION = {
+    'log.info': [{name: 'MESSAGE', from: 'message'}],
+    'schedule.once': [{name: 'DELAYTICKS', from: 'delayTicks'}],
+    'schedule.repeat': [{name: 'INTERVALTICKS', from: 'intervalTicks'}]
+};
+
+function actionToXml (action, indent) {
+    const blockType = `aprismwarp_${action.action.replace('.', '_')}`;
+    const fields = (FIELD_OF_ACTION[action.action] || [])
+        .map(field => `${indent}  <field name="${field.name}">${action[field.from]}</field>`)
+        .join('');
+    return `${indent}<block type="${blockType}" id="${action.nodeId}">${fields}</block>`;
+}
+
+function declarationToXml (declaration, indent) {
+    const blockType = `aprismwarp_declaration_${declaration.declaration}`;
+    const fields = [];
+    if (declaration.resourceKey !== undefined) {
+        fields.push(`${indent}  <field name="RESOURCEKEY">${declaration.resourceKey}</field>`);
+    }
+    if (declaration.maxStack !== undefined) {
+        fields.push(`${indent}  <field name="STACKSIZE">${declaration.maxStack}</field>`);
+    }
+    return `${indent}<block type="${blockType}" id="${declaration.nodeId}">${fields.join('')}</block>`;
+}
+
+function handlerToXml (handler, indent) {
+    const blockType = handler.event === 'game.tick'
+        ? 'aprismwarp_game_tick'
+        : eventBlockType(handler.event);
+    const lines = [`${indent}<block type="${blockType}" id="${handler.nodeId}">`];
+    if (handler.event === 'game.tick') {
+        lines.push(`${indent}  <field name="STAGE">${handler.stage || 'START'}</field>`);
+    }
+    const body = handler.body || [];
+    for (let i = 0; i < body.length; i += 1) {
+        const actionXml = actionToXml(body[i], `${indent}  `);
+        if (i === 0) {
+            lines.push(`${indent}  <next>`, actionXml);
+        } else {
+            lines.push(`${indent}    <next>`, actionXml);
+        }
+        lines.push(`${indent}  </next>`);
+    }
+    lines.push(`${indent}</block>`);
+    return lines.join('\n');
+}
+
+/**
+ * Serializes an IR v0.1 document back into Blockly workspace XML so the
+ * editor can reconstruct blocks saved in an .awp project.
+ */
+function irToWorkspaceXml (ir) {
+    const parts = ['<xml xmlns="https://developers.google.com/blockly/xml">'];
+    for (const declaration of ir.declarations || []) {
+        parts.push(declarationToXml(declaration, '  '));
+    }
+    for (const handler of ir.handlers || []) {
+        parts.push(handlerToXml(handler, '  '));
+    }
+    parts.push('</xml>');
+    return parts.join('\n');
+}
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 module.exports = {
     blockDefinitions,
     registerAprismWarpBlocks,
     extractAprismWarpIr,
     aprismWarpToolboxXML,
+    irToWorkspaceXml,
     WORK_TYPES
 };
 
@@ -271,6 +340,7 @@ if (typeof window !== 'undefined') {
     window.AprismWarpBlocks = {
         extractAprismWarpIr,
         aprismWarpToolboxXML,
+        irToWorkspaceXml,
         assembleSampleProject: async function () {
             const deadline = Date.now() + 30000;
             for (;;) {
@@ -294,13 +364,48 @@ if (typeof window !== 'undefined') {
                 '<field name="STACKSIZE">16</field></block>' +
                 '</xml>';
             Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(sampleXml), workspace);
-            const ir = extractAprismWarpIr(
+            return JSON.stringify(extractAprismWarpIr(
                 workspace,
                 window.APRISMWARP_WORK_TYPE || 'AprismJEMod',
                 'smoke-project',
                 {edition: 'JE', minecraft: '26.2', aprism: 'v26.8-Alpha.7'}
+            ));
+        },
+
+        //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
+        /**
+         * Saves the current workspace as an .awp project through the host
+         * bridge. project: {path, manifest}. The IR is extracted from the
+         * live workspace; the manifest is merged with the saved result.
+         */
+        saveProject: async function (project) {
+            const workspace = window.Blockly.getMainWorkspace();
+            const ir = extractAprismWarpIr(
+                workspace,
+                window.APRISMWARP_WORK_TYPE || 'AprismJEMod',
+                project.manifest.projectId,
+                project.manifest.target
             );
-            return JSON.stringify(ir);
+            return window.aprismwarp.bridgeRequest('POST', '/api/v1/projects/save', {
+                path: project.path,
+                manifest: project.manifest,
+                ir
+            });
+        },
+
+        /**
+         * Loads an .awp project through the host bridge and rebuilds the
+         * AprismWarp blocks in the workspace. Returns the opened manifest.
+         */
+        loadProject: async function (path) {
+            const opened = await window.aprismwarp.bridgeRequest(
+                'POST', '/api/v1/projects/open', {path});
+            const workspace = window.Blockly.getMainWorkspace();
+            workspace.clear();
+            const dom = window.Blockly.Xml.textToDom(irToWorkspaceXml(opened.ir));
+            window.Blockly.Xml.domToWorkspace(dom, workspace);
+            return opened;
         }
     };
 }

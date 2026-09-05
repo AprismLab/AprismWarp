@@ -24,6 +24,7 @@ editor shell mounted and zero renderer errors.
 | 3 | `src/lib/tw-load-scratch-blocks-hoc.jsx`: register AprismWarp blocks after `LazyScratchBlocks` resolves (both load paths) | block definitions must exist before workspace creation | lines ~1-40 |
 | 4 | `src/lib/make-toolbox-xml.js`: append the AprismWarp category when `window.APRISMWARP_WORK_TYPE` is set | inject the work-type palette without touching VM extension machinery | `makeToolboxXML` tail |
 | 5 | `src/playground/editor.jsx`: read `?workType=` from the URL into `window.APRISMWARP_WORK_TYPE` | the Electron shell opens the editor per project work type | entry file |
+| 6 | `src/lib/aprismwarp-blocks.js` (G4 extension of row 2): `irToWorkspaceXml` IR→block-XML reconstruction and the `window.AprismWarpBlocks.saveProject/loadProject` page API over `bridgeRequest` IPC | persistence flows through the bridge store endpoints with the token kept in the main process; native menu items in `desktop/main.js` call these APIs via `executeJavaScript`, so no upstream menu code changes | same file |
 
 ### G1 known caveats
 

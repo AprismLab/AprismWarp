@@ -5,9 +5,9 @@
 const path = require('node:path');
 const {start} = require(path.join(__dirname, '..', '..', 'src', 'bridge', 'server'));
 const {validateIr} = require(path.join(__dirname, '..', '..', 'src', 'ir', 'validate'));
-const {readAwp} = require(path.join(__dirname, '..', '..', 'src', 'awp', 'archive'));
-const {generateAjeAndLock} = require(path.join(__dirname, '..', '..', 'src', 'compile', 'aje'));
+const {readAwp} = require(path.join(__dirname, '..', '..', 'src', 'awp', 'archive'));const {generateAjeAndLock} = require(path.join(__dirname, '..', '..', 'src', 'compile', 'aje'));
 const {createProjectFile, openProjectFile, saveProjectFile} = require(path.join(__dirname, '..', '..', 'src', 'projects', 'store'));
+const {generateAjeAndBuild} = require(path.join(__dirname, '..', '..', 'src', 'compile', 'aje'));
 
 function handleValidateIr(body) {
     if (!body || !body.ir) {
@@ -32,8 +32,8 @@ function handlePackageAje(args) {
         error.statusCode = 400;
         throw error;
     }
-    const result = generateAjeAndLock(awpPath, outputPath, {awpOutPath: undefined, updateAwp: args.lock !== false});
-    return {manifest: result.manifest, lock: result.lock, outputPath, checksumsPath: result.checksumsPath};
+    const result = generateAjeAndBuild(awpPath, outputPath, {awpOutPath: undefined, updateAwp: args.lock !== false, build: args.build === true});
+    return {manifest: result.manifest, lock: result.lock, outputPath, checksumsPath: result.checksumsPath, built: result.built};
 }
 
 /**

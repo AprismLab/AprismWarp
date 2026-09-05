@@ -62,6 +62,28 @@ ipcMain.handle('aprismwarp:openEditor', async (event, workType, project) => {
 
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
+async function menuPackageProject(window) {
+    if (!currentProject) {
+        dialog.showMessageBox(window, {message: 'No project is open. Create one from the wizard first.'});
+        return;
+    }
+    try {
+        const handle = await ensureBridge();
+        const awpPath = path.join(handle.projectRoot, currentProject.path);
+        const payload = await request(handle, 'POST', '/api/v1/projects/package', {
+            awpPath,
+            outputPath: `${currentProject.manifest.projectId}.aje`,
+            build: true
+        });
+        dialog.showMessageBox(window, {
+            message: `Packaged ${payload.manifest.projectId}: ${payload.outputPath}` +
+                `\nJava build: ${payload.built ? 'yes' : 'reused jar'}\nLock: ${payload.lock ? payload.lock.sha256.slice(0, 16) + '...' : 'none'}`
+        });
+    } catch (error) {
+        dialog.showMessageBox(window, {message: `Package failed: ${error.message}`});
+    }
+}
+
 async function menuSaveProject(window) {
     if (!currentProject) {
         dialog.showMessageBox(window, {message: 'No project is open. Create one from the wizard first.'});
@@ -133,6 +155,11 @@ async function createWindow() {
                     accelerator: 'CmdOrCtrl+O',
                     click: () => menuOpenProject(window)
                 },
+                {
+                    label: 'Package Project (.aje)',
+                    accelerator: 'CmdOrCtrl+P',
+                    click: () => menuPackageProject(window)
+                },
                 {type: 'separator'},
                 {role: 'quit'}
             ]
@@ -183,6 +210,7 @@ app.whenReady().then(async () => {
                     `diagnostics=${verdict.diagnostics.map(d => d.code).join(',') || 'none'}`);
             }
             let roundTrip = 'skipped';
+            let packaged = 'skipped';
             if (ir) {
                 const saved = await window.webContents.executeJavaScript(
                     'window.AprismWarpBlocks.saveProject(window.APRISMWARP_PROJECT)', true, 60000);
@@ -197,6 +225,21 @@ app.whenReady().then(async () => {
                     handlers: [...doc.handlers].sort((a, b) => a.nodeId.localeCompare(b.nodeId))
                 });
                 roundTrip = normalise(saved.ir) === normalise(reExtracted);
+                try {
+                    const {verifyAjeLockForAwp} = require(path.join(__dirname, '..', 'src', 'extension', 'lock'));
+                    const fs = require('node:fs');
+                    const packageResult = await request(bridgeHandle, 'POST', '/api/v1/projects/package', {
+                        awpPath: path.join(bridgeHandle.projectRoot, 'smoke-project.awp'),
+                        outputPath: 'smoke-project.aje',
+                        build: true
+                    });
+                    const ajeExists = fs.existsSync(packageResult.outputPath);
+                    const lockVerdict = verifyAjeLockForAwp(packageResult.outputPath,
+                        path.join(bridgeHandle.projectRoot, 'smoke-project.awp'));
+                    packaged = `exists=${ajeExists} built=${packageResult.built} lockMatched=${lockVerdict.matched}`;
+                } catch (error) {
+                    packaged = `error: ${error.message.slice(0, 120)}`;
+                }
             }
             let previewParity = 'skipped';
             {
@@ -240,7 +283,7 @@ app.whenReady().then(async () => {
                 const bothReject = unknownRun.errors.length === 1 && !unknownVerdict.valid;
                 console.log(`APRISMWARP_G5_CHECK previewValid=${previewVerdict.valid} ops=${traceOps === expectedOps} vars=${variableValue === 7} compare=${compareResult === true} bothRejectUnknown=${bothReject}`);
             }
-            console.log(`APRISMWARP_SMOKE_OK bridge=${bridgeHandle.bridgeUrl} gui=${url.includes('editor.html')} project=${opened.manifest.projectId} ir=${ir ? 'extracted' : `error: ${irError}`} roundTrip=${roundTrip} preview=${previewParity}`);
+            console.log(`APRISMWARP_SMOKE_OK bridge=${bridgeHandle.bridgeUrl} gui=${url.includes('editor.html')} project=${opened.manifest.projectId} ir=${ir ? 'extracted' : `error: ${irError}`} roundTrip=${roundTrip} package=${packaged} preview=${previewParity}`);
             window.destroy();
             app.exit(0);
             return;

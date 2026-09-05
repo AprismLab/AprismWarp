@@ -7,7 +7,7 @@ const path = require('node:path');
 const {start} = require('../src/bridge/server');
 const {validateIr} = require('../src/ir/validate');
 const {readAwp} = require('../src/awp/archive');
-const {generateAjeAndLock} = require('../src/compile/aje');
+const {generateAjeAndBuild} = require('../src/compile/aje');
 const {createProjectFile, openProjectFile, saveProjectFile} = require('../src/projects/store');
 
 function usage() {
@@ -55,8 +55,8 @@ function handlePackageAje(args) {
         error.statusCode = 400;
         throw error;
     }
-    const result = generateAjeAndLock(awpPath, outputPath, {awpOutPath: undefined, updateAwp: args.lock !== false});
-    return {manifest: result.manifest, lock: result.lock, outputPath, checksumsPath: result.checksumsPath};
+    const result = generateAjeAndBuild(awpPath, outputPath, {awpOutPath: undefined, updateAwp: args.lock !== false, build: args.build === true});
+    return {manifest: result.manifest, lock: result.lock, outputPath, checksumsPath: result.checksumsPath, built: result.built};
 }
 
 async function main(argv) {

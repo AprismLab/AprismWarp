@@ -51,7 +51,11 @@ function createProjectFile(projectRoot, spec) {
     const relativePath = `${spec.projectId}.awp`;
     const projectPath = safeProjectPath(projectRoot, relativePath);
     fs.mkdirSync(path.dirname(projectPath), {recursive: true});
-    writeAwp(projectPath, {manifest: project.manifest, ir: project.ir});
+    const files = new Map();
+    if (project.editor) {
+        files.set('editor/project.json', Buffer.from(JSON.stringify(project.editor, null, 2) + '\n'));
+    }
+    writeAwp(projectPath, {manifest: project.manifest, ir: project.ir, files});
     return {
         relativePath,
         projectPath,

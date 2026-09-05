@@ -143,6 +143,7 @@ function createProject(spec) {
         manifest.editor = {
             entrypoint: defaultEntryClassName(spec.projectId),
             displayName: manifest.name,
+            description: manifest.description || `${manifest.name} created with AprismWarp.`,
             version: '0.1.0',
             environment: '*'
         };

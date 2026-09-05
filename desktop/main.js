@@ -22,6 +22,12 @@ ipcMain.handle('aprismwarp:getBridgeInfo', async () => {
     return {bridgeUrl: handle.bridgeUrl, token: handle.token};
 });
 
+const GUI_EDITOR = path.join(__dirname, '..', 'gui', 'scratch-gui', 'build', 'editor.html');
+
+function guiAvailable() {
+    return require('node:fs').existsSync(GUI_EDITOR);
+}
+
 async function createWindow() {
     await ensureBridge();
     const window = new BrowserWindow({
@@ -36,7 +42,11 @@ async function createWindow() {
         }
     });
     window.removeMenu();
-    window.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+    if (guiAvailable()) {
+        window.loadFile(GUI_EDITOR);
+    } else {
+        window.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+    }
     return window;
 }
 
@@ -47,7 +57,12 @@ app.whenReady().then(async () => {
         const window = await createWindow();
         if (process.argv.includes('--smoke')) {
             await ensureBridge();
-            console.log(`APRISMWARP_SMOKE_OK bridge=${bridgeHandle.bridgeUrl}`);
+            await Promise.race([
+                new Promise(resolve => window.webContents.once('did-finish-load', resolve)),
+                new Promise(resolve => setTimeout(resolve, 30000))
+            ]);
+            const url = window.webContents.getURL();
+            console.log(`APRISMWARP_SMOKE_OK bridge=${bridgeHandle.bridgeUrl} gui=${url.includes('editor.html')}`);
             window.destroy();
             app.exit(0);
             return;

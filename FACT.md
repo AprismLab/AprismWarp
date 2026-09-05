@@ -72,6 +72,7 @@
 - [NOTE] The Electron binary download was blocked by repeated `ECONNRESET`; it later succeeded once the network stabilized. `npm --prefix desktop start` and the `--smoke` hook are unblocked.
 - [DONE] Verified the Electron shell smoke path (`npx electron . --smoke`): main process boots, the host bridge starts on loopback, and the contextIsolation BrowserWindow is created. Fixed a missing-async activate handler found by the smoke run.
 - [DONE] Completed the GUI integration design (`docs/gui-integration.md`): reuse map, substitution boundaries (blocks→IR, no scratch-vm, bridge persistence), block definition strategy from `WORK_TYPE_PALETTES`, fork strategy (D-10), and six GUI phases G1-G6 with gates.
+- [DONE] GUI phase G1 PASSED: vendored the scratch-gui fork under `gui/scratch-gui` per D-10 (`gui/FORK.md` baseline), installed its dependency tree (including the GitHub git dependencies), built the production bundle with webpack 4 under the Node 24 OpenSSL legacy provider, and booted the editor inside the Electron shell (smoke reports `gui=true`, zero renderer errors). Known caveats recorded in `gui/FORK.md`: editor CSP hardening pending, filehash→hash routing fallback, upstream React 16 deprecation warnings.
 - [DONE] Adopted GPL-3.0-only for AprismWarp before importing or modifying TurboWarp scratch-gui code.
 
 ## 5. Acceptance Gates

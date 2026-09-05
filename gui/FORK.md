@@ -42,6 +42,10 @@ Planned deviations, none applied yet:
 - `.awp` persistence replaces `.sb3` download/upload paths.
 - AprismWarp block catalog replaces the extension registry palette source.
 
+G2 note (2026-09-05): the wizard screen and the project-create flow live on
+the Electron side (`desktop/renderer/wizard.*`, `desktop/main.js`), so the
+fork source remains unmodified after G2.
+
 ## Rule
 
 Any future change must add one row here with a reason and the upstream

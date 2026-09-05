@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'none'">
+    <title>AprismWarp - New Project</title>
+    <style>
+        body { font-family: "Segoe UI", sans-serif; background: #1e1e28; color: #e8e8f0;
+               display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        form { background: #26262f; padding: 2rem 2.5rem; border-radius: 10px; width: 26rem; }
+        h1 { margin: 0 0 0.25rem; font-size: 1.4rem; }
+        p.hint { color: #9a9ab0; margin: 0 0 1.25rem; font-size: 0.85rem; }
+        label { display: block; margin: 0.75rem 0 0.25rem; font-size: 0.85rem; color: #b9b9cc; }
+        input, select { width: 100%; box-sizing: border-box; padding: 0.5rem; border: 1px solid #3d3d4d;
+                        border-radius: 6px; background: #1a1a22; color: #e8e8f0; font-size: 0.95rem; }
+        button { margin-top: 1.5rem; width: 100%; padding: 0.65rem; border: 0; border-radius: 6px;
+                 background: #7c5cff; color: white; font-size: 1rem; cursor: pointer; }
+        button:disabled { background: #4a4a5a; cursor: wait; }
+        #error { color: #ff7a7a; font-size: 0.85rem; margin-top: 0.75rem; min-height: 1.2em; }
+        .fixed { color: #6fda9b; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <form id="wizard">
+        <h1>New AprismWarp Project</h1>
+        <p class="hint">Verified profile: <span class="fixed">Minecraft JE 26.2 + Aprism v26.8-Alpha.7</span></p>
+        <label for="projectId">Project ID</label>
+        <input id="projectId" name="projectId" autocomplete="off"
+               pattern="[a-z][a-z0-9_-]{1,63}" placeholder="my-first-mod" required>
+        <label for="name">Display Name</label>
+        <input id="name" name="name" autocomplete="off" placeholder="My First Mod" required>
+        <label for="workType">Work Type</label>
+        <select id="workType" name="workType">
+            <option value="AprismJEMod">Aprism JE Mod (.aje)</option>
+            <option value="AprismExtension">Aprism Extension (.aep)</option>
+        </select>
+        <label for="description">Description (optional)</label>
+        <input id="description" name="description" autocomplete="off" placeholder="What does it do?">
+        <label for="author">Author (optional)</label>
+        <input id="author" name="author" autocomplete="off" placeholder="BlockConnect@StarsailsClover">
+        <button type="submit" id="create">Create Project</button>
+        <div id="error" role="alert"></div>
+    </form>
+    <script src="wizard.js"></script>
+</body>
+</html>

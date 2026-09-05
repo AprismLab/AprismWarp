@@ -198,7 +198,49 @@ app.whenReady().then(async () => {
                 });
                 roundTrip = normalise(saved.ir) === normalise(reExtracted);
             }
-            console.log(`APRISMWARP_SMOKE_OK bridge=${bridgeHandle.bridgeUrl} gui=${url.includes('editor.html')} project=${opened.manifest.projectId} ir=${ir ? 'extracted' : `error: ${irError}`} roundTrip=${roundTrip}`);
+            let previewParity = 'skipped';
+            {
+                const {validateIr} = require(path.join(__dirname, '..', 'src', 'ir', 'validate'));
+                const previewIrSample = {
+                    irVersion: 1,
+                    projectId: 'smoke-project',
+                    workType: 'AprismJEMod',
+                    target: {edition: 'JE', minecraft: '26.2', aprism: 'v26.8-Alpha.7'},
+                    capabilities: ['basic'],
+                    declarations: [],
+                    handlers: [{
+                        nodeId: 'preview_hat',
+                        kind: 'event',
+                        event: 'lifecycle.init',
+                        body: [
+                            {nodeId: 'p_log', kind: 'action', action: 'log.info', message: 'preview'},
+                            {nodeId: 'p_once', kind: 'action', action: 'schedule.once', delayTicks: 5, previewOnly: true},
+                            {nodeId: 'p_repeat', kind: 'action', action: 'schedule.repeat', intervalTicks: 10, previewOnly: true},
+                            {nodeId: 'p_wait', kind: 'action', action: 'wait', delayTicks: 3, previewOnly: true},
+                            {nodeId: 'p_set', kind: 'action', action: 'set-variable', name: 'score', value: 7, previewOnly: true},
+                            {nodeId: 'p_cmp', kind: 'action', action: 'compare', left: 'score', operator: 'gt', right: 3, previewOnly: true}
+                        ]
+                    }]
+                };
+                const previewVerdict = validateIr(previewIrSample, {mode: 'preview'});
+                const runResult = await window.webContents.executeJavaScript(
+                    `JSON.stringify(window.AprismWarpBlocks.previewIr(${JSON.stringify(previewIrSample)}))`, true, 30000);
+                const run = JSON.parse(runResult);
+                const traceOps = run.trace.map(t => t.action).join(',');
+                const expectedOps = previewIrSample.handlers[0].body.map(a => a.action).join(',');
+                const variableValue = run.variables.score;
+                const compareResult = run.trace.find(t => t.action === 'compare').effect.result;
+                previewParity = previewVerdict.valid && traceOps === expectedOps &&
+                    variableValue === 7 && compareResult === true && run.errors.length === 0;
+                const unknownIr = JSON.parse(JSON.stringify(previewIrSample));
+                unknownIr.handlers[0].body = [{nodeId: 'bad', kind: 'action', action: 'shell.exec', previewOnly: true}];
+                const unknownRun = JSON.parse(await window.webContents.executeJavaScript(
+                    `JSON.stringify(window.AprismWarpBlocks.previewIr(${JSON.stringify(unknownIr)}))`, true, 30000));
+                const unknownVerdict = validateIr(unknownIr, {mode: 'preview'});
+                const bothReject = unknownRun.errors.length === 1 && !unknownVerdict.valid;
+                console.log(`APRISMWARP_G5_CHECK previewValid=${previewVerdict.valid} ops=${traceOps === expectedOps} vars=${variableValue === 7} compare=${compareResult === true} bothRejectUnknown=${bothReject}`);
+            }
+            console.log(`APRISMWARP_SMOKE_OK bridge=${bridgeHandle.bridgeUrl} gui=${url.includes('editor.html')} project=${opened.manifest.projectId} ir=${ir ? 'extracted' : `error: ${irError}`} roundTrip=${roundTrip} preview=${previewParity}`);
             window.destroy();
             app.exit(0);
             return;

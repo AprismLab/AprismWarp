@@ -77,6 +77,40 @@ const blockDefinitions = [
         nextStatement: null
     },
     {
+        type: 'aprismwarp_wait',
+        message0: 'wait %1 ticks',
+        args0: [{type: 'field_number', name: 'DELAYTICKS', value: 10, min: 1, precision: 1}],
+        category: 'AprismWarp',
+        colour: ACTION_COLOR,
+        previousStatement: null,
+        nextStatement: null
+    },
+    {
+        type: 'aprismwarp_set_variable',
+        message0: 'set variable %1 to %2',
+        args0: [
+            {type: 'field_input', name: 'NAME', text: 'score'},
+            {type: 'field_number', name: 'VALUE', value: 0}
+        ],
+        category: 'AprismWarp',
+        colour: ACTION_COLOR,
+        previousStatement: null,
+        nextStatement: null
+    },
+    {
+        type: 'aprismwarp_compare',
+        message0: 'compare %1 %2 %3',
+        args0: [
+            {type: 'field_input', name: 'LEFT', text: 'score'},
+            {type: 'field_dropdown', name: 'OPERATOR', options: [['equals', 'eq'], ['not equals', 'ne'], ['greater than', 'gt'], ['less than', 'lt']]},
+            {type: 'field_number', name: 'RIGHT', value: 0}
+        ],
+        category: 'AprismWarp',
+        colour: ACTION_COLOR,
+        previousStatement: null,
+        nextStatement: null
+    },
+    {
         type: 'aprismwarp_declaration_item',
         message0: 'declare item %1 stack %2',
         args0: [
@@ -148,6 +182,36 @@ function actionOfBlock (block) {
             kind: 'action',
             action: 'schedule.repeat',
             intervalTicks: Number(block.getFieldValue('INTERVALTICKS')),
+            previewOnly: true
+        };
+    }
+    if (block.type === 'aprismwarp_wait') {
+        return {
+            nodeId: block.id,
+            kind: 'action',
+            action: 'wait',
+            delayTicks: Number(block.getFieldValue('DELAYTICKS')),
+            previewOnly: true
+        };
+    }
+    if (block.type === 'aprismwarp_set_variable') {
+        return {
+            nodeId: block.id,
+            kind: 'action',
+            action: 'set-variable',
+            name: String(block.getFieldValue('NAME') || ''),
+            value: Number(block.getFieldValue('VALUE')),
+            previewOnly: true
+        };
+    }
+    if (block.type === 'aprismwarp_compare') {
+        return {
+            nodeId: block.id,
+            kind: 'action',
+            action: 'compare',
+            left: String(block.getFieldValue('LEFT') || ''),
+            operator: String(block.getFieldValue('OPERATOR') || 'eq'),
+            right: Number(block.getFieldValue('RIGHT')),
             previewOnly: true
         };
     }
@@ -242,7 +306,17 @@ function aprismWarpToolboxXML (workType) {
             <field name="MESSAGE">message</field>
         </block>
         <block type="aprismwarp_schedule_once"><field name="DELAYTICKS">20</field></block>
-        <block type="aprismwarp_schedule_repeat"><field name="INTERVALTICKS">20</field></block>`;
+        <block type="aprismwarp_schedule_repeat"><field name="INTERVALTICKS">20</field></block>
+        <block type="aprismwarp_wait"><field name="DELAYTICKS">10</field></block>
+        <block type="aprismwarp_set_variable">
+            <field name="NAME">score</field>
+            <field name="VALUE">0</field>
+        </block>
+        <block type="aprismwarp_compare">
+            <field name="LEFT">score</field>
+            <field name="OPERATOR">eq</field>
+            <field name="RIGHT">0</field>
+        </block>`;
     const declarationBlocks = workType === 'AprismExtension' ? '' : `
         <block type="aprismwarp_declaration_item">
             <field name="RESOURCEKEY">aprismwarp:item</field>
@@ -263,7 +337,10 @@ function aprismWarpToolboxXML (workType) {
 const FIELD_OF_ACTION = {
     'log.info': [{name: 'MESSAGE', from: 'message'}],
     'schedule.once': [{name: 'DELAYTICKS', from: 'delayTicks'}],
-    'schedule.repeat': [{name: 'INTERVALTICKS', from: 'intervalTicks'}]
+    'schedule.repeat': [{name: 'INTERVALTICKS', from: 'intervalTicks'}],
+    'wait': [{name: 'DELAYTICKS', from: 'delayTicks'}],
+    'set-variable': [{name: 'NAME', from: 'name'}, {name: 'VALUE', from: 'value'}],
+    'compare': [{name: 'LEFT', from: 'left'}, {name: 'OPERATOR', from: 'operator'}, {name: 'RIGHT', from: 'right'}]
 };
 
 function actionToXml (action, indent) {
@@ -326,12 +403,115 @@ function irToWorkspaceXml (ir) {
 
 //GitHub@NDBlockConnect | BlockConnect@StarsailsClover
 
+const INTERPRETABLE_ACTIONS = new Set([
+    'log.info', 'schedule.once', 'schedule.repeat', 'wait', 'set-variable', 'compare'
+]);
+const LIFECYCLE_ORDER = {
+    'lifecycle.preinit': 0,
+    'lifecycle.init': 1,
+    'lifecycle.setup': 2,
+    'lifecycle.complete': 3
+};
+
+function evaluateCompare (left, operator, right) {
+    switch (operator) {
+    case 'eq': return left === right;
+    case 'ne': return left !== right;
+    case 'gt': return left > right;
+    case 'lt': return left < right;
+    default: throw new Error(`aprismwarp-preview: unknown operator ${operator}`);
+    }
+}
+
+/**
+ * Preview interpreter for IR v0.1. Walks lifecycle handlers in phase
+ * order and evaluates every action against a sandbox state, producing
+ * a deterministic trace. Mirrors the IR validator grammar (AWP-IR-031/032):
+ * unknown actions and malformed fields are refused the same way the
+ * validator refuses them.
+ *
+ * @param {object} ir IR document
+ * @returns {{trace: Array<object>, variables: object, errors: string[]}}
+ */
+function previewIr (ir) {
+    const trace = [];
+    const variables = {};
+    const errors = [];
+    const emit = (event, action, effect) => trace.push({event, nodeId: action.nodeId, action: action.action, effect});
+    const handlers = [...(ir.handlers || [])].sort((a, b) => {
+        const orderDiff = (LIFECYCLE_ORDER[a.event] ?? 99) - (LIFECYCLE_ORDER[b.event] ?? 99);
+        return orderDiff !== 0 ? orderDiff : String(a.nodeId).localeCompare(String(b.nodeId));
+    });
+    for (const handler of handlers) {
+        for (const action of handler.body || []) {
+            try {
+                if (action.kind !== 'action') throw new Error('node is not an action');
+                if (!INTERPRETABLE_ACTIONS.has(action.action)) {
+                    throw new Error(`unknown action ${action.action}`);
+                }
+                switch (action.action) {
+                case 'log.info': {
+                    if (typeof action.message !== 'string' || !action.message.length || action.message.length > 4096) {
+                        throw new Error('log.info requires a message up to 4096 characters');
+                    }
+                    emit(handler.event, action, {type: 'log', message: action.message});
+                    break;
+                }
+                case 'schedule.once': {
+                    if (!Number.isInteger(action.delayTicks) || action.delayTicks < 1) {
+                        throw new Error('schedule.once requires positive delayTicks');
+                    }
+                    emit(handler.event, action, {type: 'schedule', atTick: action.delayTicks, kind: 'once'});
+                    break;
+                }
+                case 'schedule.repeat': {
+                    if (!Number.isInteger(action.intervalTicks) || action.intervalTicks < 1) {
+                        throw new Error('schedule.repeat requires positive intervalTicks');
+                    }
+                    emit(handler.event, action, {type: 'schedule', everyTicks: action.intervalTicks, kind: 'repeat'});
+                    break;
+                }
+                case 'wait': {
+                    if (!Number.isInteger(action.delayTicks) || action.delayTicks < 1) {
+                        throw new Error('wait requires positive delayTicks');
+                    }
+                    emit(handler.event, action, {type: 'wait', ticks: action.delayTicks});
+                    break;
+                }
+                case 'set-variable': {
+                    if (typeof action.name !== 'string' || !action.name.trim()) {
+                        throw new Error('set-variable requires a name');
+                    }
+                    variables[action.name] = action.value;
+                    emit(handler.event, action, {type: 'variable', name: action.name, value: action.value});
+                    break;
+                }
+                case 'compare': {
+                    const left = Object.prototype.hasOwnProperty.call(variables, action.left)
+                        ? variables[action.left]
+                        : action.left;
+                    const result = evaluateCompare(left, action.operator, action.right);
+                    emit(handler.event, action, {type: 'compare', result});
+                    break;
+                }
+                }
+            } catch (error) {
+                errors.push(`${handler.event}/${action.nodeId || 'unknown'}: ${error.message}`);
+            }
+        }
+    }
+    return {trace, variables, errors};
+}
+
+//GitHub@NDBlockConnect | BlockConnect@StarsailsClover
+
 module.exports = {
     blockDefinitions,
     registerAprismWarpBlocks,
     extractAprismWarpIr,
     aprismWarpToolboxXML,
     irToWorkspaceXml,
+    previewIr,
     WORK_TYPES
 };
 
@@ -341,6 +521,7 @@ if (typeof window !== 'undefined') {
         extractAprismWarpIr,
         aprismWarpToolboxXML,
         irToWorkspaceXml,
+        previewIr,
         assembleSampleProject: async function () {
             const deadline = Date.now() + 30000;
             for (;;) {

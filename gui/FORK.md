@@ -25,6 +25,7 @@ editor shell mounted and zero renderer errors.
 | 4 | `src/lib/make-toolbox-xml.js`: append the AprismWarp category when `window.APRISMWARP_WORK_TYPE` is set | inject the work-type palette without touching VM extension machinery | `makeToolboxXML` tail |
 | 5 | `src/playground/editor.jsx`: read `?workType=` from the URL into `window.APRISMWARP_WORK_TYPE` | the Electron shell opens the editor per project work type | entry file |
 | 6 | `src/lib/aprismwarp-blocks.js` (G4 extension of row 2): `irToWorkspaceXml` IR→block-XML reconstruction and the `window.AprismWarpBlocks.saveProject/loadProject` page API over `bridgeRequest` IPC | persistence flows through the bridge store endpoints with the token kept in the main process; native menu items in `desktop/main.js` call these APIs via `executeJavaScript`, so no upstream menu code changes | same file |
+| 7 | `src/lib/aprismwarp-blocks.js` (G5 extension of row 2): `wait`/`set-variable`/`compare` block definitions and the `previewIr` preview interpreter with variable-resolving `compare` semantics | preview-only actions must be interpretable in the renderer with parity to `validateIr(mode: preview)`; the interpreter grammar mirrors AWP-IR-031/032 enforcement | same file |
 
 ### G1 known caveats
 

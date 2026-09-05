@@ -21,4 +21,10 @@ import React from 'react';
 import Interface from './render-interface.jsx';
 import render from './app-target';
 
+// FORK: pick the AprismWarp work type from the URL query (D-10)
+const aprismwarpWorkType = new URLSearchParams(window.location.search).get('workType');
+if (aprismwarpWorkType) {
+    window.APRISMWARP_WORK_TYPE = aprismwarpWorkType;
+}
+
 render(<Interface />);

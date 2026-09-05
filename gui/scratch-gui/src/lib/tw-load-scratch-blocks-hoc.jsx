@@ -1,6 +1,7 @@
 import React from 'react';
 import log from './log';
 import LazyScratchBlocks from './tw-lazy-scratch-blocks';
+import {registerAprismWarpBlocks} from './aprismwarp-blocks'; // FORK: register AprismWarp blocks (D-10)
 import LoadingSpinner from '../components/tw-loading-spinner/spinner.jsx';
 import CrashMessage from '../components/crash-message/crash-message.jsx';
 
@@ -15,6 +16,7 @@ const LoadScratchBlocksHOC = function (WrappedComponent) {
             if (!this.state.loaded) {
                 LazyScratchBlocks.load()
                     .then(() => {
+                        registerAprismWarpBlocks(LazyScratchBlocks.get()); // FORK: AprismWarp blocks (D-10)
                         this.setState({
                             loaded: true
                         });
@@ -25,6 +27,8 @@ const LoadScratchBlocksHOC = function (WrappedComponent) {
                             error: e
                         });
                     });
+            } else {
+                registerAprismWarpBlocks(LazyScratchBlocks.get()); // FORK: already loaded (D-10)
             }
         }
         handleReload () {

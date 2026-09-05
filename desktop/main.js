@@ -43,13 +43,14 @@ ipcMain.handle('aprismwarp:bridgeRequest', async (event, method, requestPath, bo
     return request(handle, method, requestPath, body);
 });
 
-ipcMain.handle('aprismwarp:openEditor', async event => {
+ipcMain.handle('aprismwarp:openEditor', async (event, workType) => {
     const window = BrowserWindow.fromWebContents(event.sender);
     if (!window) return {opened: false};
     if (!require('node:fs').existsSync(GUI_EDITOR)) {
         return {opened: false, error: 'GUI build is missing; run the gui build first.'};
     }
-    await window.loadFile(GUI_EDITOR);
+    const search = workType ? `workType=${encodeURIComponent(workType)}` : '';
+    await window.loadFile(GUI_EDITOR, {search});
     return {opened: true};
 });
 
@@ -88,13 +89,28 @@ app.whenReady().then(async () => {
                 workType: 'AprismJEMod'
             });
             const opened = openProjectFile(getProjectRoot(), 'smoke-project.awp');
-            await window.loadFile(GUI_EDITOR);
+            await window.loadFile(GUI_EDITOR, {search: 'workType=AprismJEMod'});
             await Promise.race([
                 new Promise(resolve => window.webContents.once('did-finish-load', resolve)),
                 new Promise(resolve => setTimeout(resolve, 30000))
             ]);
             const url = window.webContents.getURL();
-            console.log(`APRISMWARP_SMOKE_OK bridge=${bridgeHandle.bridgeUrl} gui=${url.includes('editor.html')} project=${opened.manifest.projectId}`);
+            let ir = null;
+            let irError = null;
+            try {
+                const injected = await window.webContents.executeJavaScript(
+                    `window.AprismWarpBlocks.assembleSampleProject()`, true, 30000);
+                ir = JSON.parse(injected);
+            } catch (error) {
+                irError = error.message;
+            }
+            if (ir) {
+                const {validateIr} = require(path.join(__dirname, '..', 'src', 'ir', 'validate'));
+                const verdict = validateIr(ir, {mode: 'export'});
+                console.log(`APRISMWARP_G3_CHECK irValid=${verdict.valid} ` +
+                    `diagnostics=${verdict.diagnostics.map(d => d.code).join(',') || 'none'}`);
+            }
+            console.log(`APRISMWARP_SMOKE_OK bridge=${bridgeHandle.bridgeUrl} gui=${url.includes('editor.html')} project=${opened.manifest.projectId} ir=${ir ? 'extracted' : `error: ${irError}`}`);
             window.destroy();
             app.exit(0);
             return;

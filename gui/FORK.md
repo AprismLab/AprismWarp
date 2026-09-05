@@ -20,7 +20,10 @@ editor shell mounted and zero renderer errors.
 | # | Deviation | Reason | Upstream reference |
 |---|---|---|---|
 | 1 | Vendored source copy without upstream `.git` history | the fork is tracked in the AprismWarp repository as GPL-3.0 source; upstream history stays in `upstream/scratch-gui` (git-ignored) | whole tree |
-| 2 | No source modifications yet | G1 gate is an unmodified boot: shell renders in Electron before any patching | - |
+| 2 | NEW `src/lib/aprismwarp-blocks.js` | the AprismWarp block catalog: block JSON definitions, toolbox XML per work type, workspace→IR v0.1 extraction, and a smoke/automation bridge; every block maps to an IR node per D-03 | new file |
+| 3 | `src/lib/tw-load-scratch-blocks-hoc.jsx`: register AprismWarp blocks after `LazyScratchBlocks` resolves (both load paths) | block definitions must exist before workspace creation | lines ~1-40 |
+| 4 | `src/lib/make-toolbox-xml.js`: append the AprismWarp category when `window.APRISMWARP_WORK_TYPE` is set | inject the work-type palette without touching VM extension machinery | `makeToolboxXML` tail |
+| 5 | `src/playground/editor.jsx`: read `?workType=` from the URL into `window.APRISMWARP_WORK_TYPE` | the Electron shell opens the editor per project work type | entry file |
 
 ### G1 known caveats
 

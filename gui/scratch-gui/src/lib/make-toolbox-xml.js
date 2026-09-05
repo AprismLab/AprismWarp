@@ -826,6 +826,16 @@ const makeToolboxXML = function (isInitialSetup, isStage = true, targetId, categ
         everything.push(gap, turbowarpXML);
     }
 
+    // FORK: append the AprismWarp palette when a work type is requested (D-10)
+    if (typeof window !== 'undefined' && window.APRISMWARP_WORK_TYPE) {
+        const aprismwarpXML = require('./aprismwarp-blocks').aprismWarpToolboxXML(
+            window.APRISMWARP_WORK_TYPE
+        );
+        if (aprismwarpXML) {
+            everything.push(gap, aprismwarpXML);
+        }
+    }
+
     for (const extensionCategory of categoriesXML) {
         everything.push(gap, extensionCategory.xml);
     }

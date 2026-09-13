@@ -6,6 +6,44 @@ All notable changes are documented per the BC version control specification
 
 <!-- GitHub@NDBlockConnect | BlockConnect@StarsailsClover -->
 
+## v26.0-Alpha 2 (npm 26.0.0-alpha.2) - 2026-09-14
+
+### Added
+- Electron desktop shell (D-09): pure-Node app core booting the host bridge,
+  contextIsolation BrowserWindow, IPC preload, CSP-hardened wizard page, and a
+  native File menu (Save/Open `.awp`, Package `.aje`).
+- scratch-gui fork under `gui/` per D-10 (`gui/FORK.md` audit trail): AprismWarp
+  block catalog with per-work-type toolbox, workspace→IR v0.1 extraction,
+  IR→block-XML reconstruction, and a preview interpreter with validator parity.
+- `.awe` editor-extension inspector and `.awp` lock-list support for all three
+  lock arrays (`aepCapabilities`, `ajeCapabilities`, `aweEditors`).
+- Project store endpoints (`projects/create|open|save`) with project-root
+  traversal protection and entry-preserving saves.
+- GUI phases G1-G6 all gated: fork boot, wizard→bridge→editor, blocks→IR,
+  persistence round-trip (byte-identical), preview parity, and packaging.
+- End-to-end validation against a real isolated JE instance: the generated
+  `.aje` loads under Aprism v26.8 and the generated lifecycle callback executes
+  (`Loaded 1, failed 0`).
+
+### Security
+- The bridge token never reaches the renderer: `bridgeRequest` proxies all
+  calls from the main process; renderer pages forbid direct connections
+  (`connect-src 'none'`); projects must live inside the workspace root.
+
+### Fixed
+- Wizard editor metadata carries `description`; `createProjectFile` writes the
+  `editor/project.json` archive entry the AJE compiler reads.
+- IR contract alignment for the GUI path: declarations carry `id`, item stacks
+  use `maxStack`.
+
+### Notes
+- GUI phases proceeded under Chromium defaults (no CSP meta on the upstream
+  editor page); CSP hardening is tracked in `gui/FORK.md` before the first
+  release candidate. MDL launch on 26.2 requires a Java 25 runtime via
+  `--java-path`.
+
+<!-- GitHub@NDBlockConnect | BlockConnect@StarsailsClover -->
+
 ## v26.0-Alpha 1 (npm 26.0.0-alpha.1) - 2026-08-30
 
 ### Added

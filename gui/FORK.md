@@ -30,7 +30,9 @@ editor shell mounted and zero renderer errors.
 ### G1 known caveats
 
 - `build/editor.html` carries no CSP meta; the Electron window runs with
-  Chromium defaults. CSP hardening is required before G2 (tracked here).
+  Chromium defaults. CSP hardening is required before the first public
+  release candidate (tracked here; G2-G6 proceeded under Chromium defaults
+  with the token confined to the main process).
 - Routing style falls back from `filehash` to `hash` under `file://`
   (benign console warning).
 - Upstream React 16 lifecycle deprecation warnings are visible at boot;

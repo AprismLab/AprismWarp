@@ -1,6 +1,6 @@
 {
   "name": "@aprismlab/aprismwarp",
-  "version": "26.0.0-alpha.1",
+  "version": "26.0.0-alpha.2",
   "private": true,
   "description": "AprismWarp native project and IR tooling",
   "license": "GPL-3.0-only",

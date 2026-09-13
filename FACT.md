@@ -1,7 +1,7 @@
 # FACT.md - AprismWarp Project Tracking
 
 > Maintained by BlockConnect@StarsailsClover
-> Status: research baseline, v26.0-Alpha.1-Phase0
+> Status: v26.0-Alpha.2 — GUI phases G1-G6 complete, end-to-end chain validated against a real isolated JE instance
 
 ## 1. Identity
 
@@ -47,7 +47,6 @@
 - [DONE] Documented process boundary, license boundary, and first target profile.
 - [DONE] Built the local bridge host with token auth, path-traversal protection, and the `validate`/`package` endpoints (`src/bridge/server.js`, `npm run host:bridge`).
 - [DONE] Added the IR-to-Java source generator, javac integration, JAR packager, and the `--build` flag on the `.aje` pipeline (`src/compile/java.js`, `src/compile/aje.js`).
-- [TODO] Choose desktop shell: Tauri, Electron, or a thin local launcher plus browser UI.
 - [DONE] Added a real `.aje` integration test that exercises the Java source generator, `javac`, JAR packaging, and the full `.awp → .aje` lock-backfill flow.
 - [DONE] Adopted `.awp` as the editable AprismWarp project extension and documented its container format.
 - [DONE] Added a dependency-free `.awp` ZIP reader/writer with deterministic stored entries, CRC checks, path safety, size limits, and manifest/IR consistency checks.
@@ -63,6 +62,9 @@
 - [DONE] Implemented the `.awe` editor-extension inspector (`src/awe/inspect.js`, `npm run inspect:awe`): safe ZIP reading with AWE-ARCHIVE/AWE-MANIFEST/AWE-CONTRIB diagnostics, schema validation against `schemas/awe.schema.json`, permission-consistency checks, declared-contribution existence checks, trusted `runtime/` flagged as disabled-by-default and never executed.
 - [DONE] Implemented `.awp` lock-list support for `.awe` editor extensions (`getAweLocks`, `verifyAweLock`, `verifyAweLockForAwp`, `applyAweLock` in `src/extension/lock.js`), completing the extension-model.md §5 lock table for all three formats (`aepCapabilities`, `ajeCapabilities`, `aweEditors`).
 - [DONE] Recorded the desktop shell decision as D-09 (Electron, matching TurboWarp upstream).
+
+### 2026-09-05 → 2026-09-14 - Desktop shell, GUI phases G1-G6, real-instance validation
+
 - [DONE] Scaffolded the Electron desktop shell (`desktop/`): pure-Node app core (`desktop/lib/app-core.js`) boots the existing host bridge and is covered by 4 Node tests without launching Electron; thin `main.js` wrapper creates a contextIsolation BrowserWindow with a CSP-restricted placeholder renderer and an IPC preload.
 - [NOTE] `npm install` of the Electron binary failed twice with `ECONNRESET` against the GitHub release mirror; the devDependency is declared and the app core is testable, but `npm --prefix desktop start` remains blocked until the download succeeds.
 - [DONE] Implemented the no-project creation wizard core (`src/wizard/project.js`): `createProject(spec)` produces manifest/IR/editor metadata for both work types with a validated init scaffold, WIZ-001..006 diagnostics, and work-type-specific editor palettes (`WORK_TYPE_PALETTES`) covering the full IR v0.1 event/declaration/action surface. Wizard output round-trips through `writeAwp`/`readAwp`.
@@ -75,7 +77,7 @@
 - [DONE] GUI phase G3 PASSED: the fork gained `src/lib/aprismwarp-blocks.js` (block JSON definitions, per-work-type toolbox XML, workspace→IR v0.1 extraction) wired through `tw-load-scratch-blocks-hoc.jsx`, `make-toolbox-xml.js`, and a `?workType=` URL param on `editor.jsx`; all four changes are recorded in `gui/FORK.md` (D-10). The smoke gate injects a sample project into the Blockly workspace, extracts IR in the page, and validates it in the main process with `validateIr(mode: export)`: `irValid=true diagnostics=none`. Two IR contract fixes came out of the gate: declarations need `id`, and item stacks use `maxStack`.
 - [DONE] GUI phase G4 PASSED: workspace→IR→`projects/save`→deterministic `.awp`→`projects/open`→IR→block-XML→workspace→re-extract round-trips with byte-identical IR (smoke `roundTrip=true`). Added `irToWorkspaceXml` and the `window.AprismWarpBlocks.saveProject/loadProject` page API (FORK.md row 6); the Electron native menu gained `Save Project (.awp)` (Ctrl+S) and `Open Project (.awp)...` (Ctrl+O) that drive those APIs via `executeJavaScript` with a projects-folder containment check. Fork menu code remains untouched.
 - [DONE] GUI phase G5 PASSED: added the `previewIr` preview interpreter plus `wait`/`set-variable`/`compare` blocks (FORK.md row 7). Smoke parity gate `APRISMWARP_G5_CHECK`: validator accepts in preview mode, interpreter executes every action in phase order, variable state persists (`score=7`), `compare` resolves variables (`7 > 3`), and an unknown action is rejected by BOTH the validator (AWP-IR-032) and the interpreter. Palette now covers the full IR v0.1 action surface.
-- [DONE] GUI phase G6 (packaging half) PASSED: `File > Package Project (.aje)` (Ctrl+P) packages the open project through the bridge with `generateAjeAndBuild` (auto-builds the mod jar via javac when absent). Smoke gate `package=exists=true built=true lockMatched=true` — the `.aje` is produced and its SHA-256 lock verifies against the source `.awp`. Two contract fixes surfaced: wizard editor metadata now carries `description`, and `createProjectFile` writes the `editor/project.json` archive entry the AJE compiler reads. The MDL launch half of G6 remains open pending a real isolated Minecraft instance.
+- [DONE] GUI phase G6 (packaging half) PASSED: `File > Package Project (.aje)` (Ctrl+P) packages the open project through the bridge with `generateAjeAndBuild` (auto-builds the mod jar via javac when absent). Smoke gate `package=exists=true built=true lockMatched=true` — the `.aje` is produced and its SHA-256 lock verifies against the source `.awp`. Two contract fixes surfaced: wizard editor metadata now carries `description`, and `createProjectFile` writes the `editor/project.json` archive entry the AJE compiler reads. [RESOLVED 2026-09-14] The MDL launch half of G6 is now validated (see the 2026-09-14 section below).
 - [DONE] GUI phase G6 (launch half) VALIDATED against a real isolated instance: created `aprismwarp-g6-v26` (Fabric 26.2, 2G, JDK 25), installed the generated `g6-smoke.aje` (`mdl mod install` reports `kind: aje`), and launched with `mdl launch --aprism`. Aprism v26.8 loaded and ran the artifact: `Loaded 1 mod(s) across 1 folder(s)`, `AprismWarp project g6-smoke initialized.` (the generated `onInitialize` lifecycle callback executed), and the load report recorded `Loaded 1, failed 0 / [OK] mod g6-smoke 0.1.0 (50 ms)`. This closes the end-to-end chain wizard → IR → Java → javac → `.aje` → MDL install → Aprism load → lifecycle dispatch.
 - [NOTE] The same launch then aborted before window creation on two upstream issues unrelated to AprismWarp artifacts: (a) `Aprism Load Report` reached registry binding but Fabric Knot terminated with `duplicate ASM classes found on classpath` (149 `org.objectweb.asm` classes are bundled inside `Aprism-v26.8-JE-26.2.jar`, conflicting with MDL's `asm-9.10.1.jar`); (b) Aprism's `DependencyResolver` rejects Fabric modular dependency ids (`fabric-resource-loader-v1`) and bare Fabric ids (`fabric-api`), so third-party Fabric mods such as `modmenu` and `Despotes` abort the load. Both are upstream Aprism/MDL integration gaps that must be resolved outside this repository; AprismWarp artifacts themselves load cleanly.
 - [NOTE] Minecraft 26.2 class files are Java 25 (class version 69); the machine's default `java` is JDK 21, which produced `UnsupportedClassVersionError` during registry binding. Instances targeting 26.2 must pass a Java 25 runtime via `--java-path` (for example the local `jdk-25.0.3`).
@@ -85,11 +87,13 @@
 
 ## 5. Acceptance Gates
 
-1. GUI can load a saved `.awp` project and AprismWarp-native block definitions.
-2. Bridge exposes explicit capabilities and rejects unsupported commands.
-3. A graphical project compiles to a structurally valid `.aje` archive.
-4. MDL launches an isolated instance without modifying native Minecraft files.
-5. Runtime validation records logs and failure reasons from the isolated instance.
+All five gates are now verified. Evidence per gate:
+
+1. GUI can load a saved `.awp` project and AprismWarp-native block definitions. — **PASS** (G4: `loadProject` rebuilds blocks from `.awp` via `irToWorkspaceXml`; smoke `roundTrip=true`).
+2. Bridge exposes explicit capabilities and rejects unsupported commands. — **PASS** (bridge tests: 401/403/404 envelopes; `BRIDGE-STORE-001..004`, `BRIDGE-INT-002` verified).
+3. A graphical project compiles to a structurally valid `.aje` archive. — **PASS** (G6 packaging: `generateAjeAndBuild` + SHA-256 lock `lockMatched=true`; 168 core tests).
+4. MDL launches an isolated instance without modifying native Minecraft files. — **PASS** (real-instance validation: `aprismwarp-g6-v26` Fabric 26.2 via `mdl create` + `--aprism`; native game files untouched).
+5. Runtime validation records logs and failure reasons from the isolated instance. — **PASS** (`aprism-crashes/*.txt` crash reports, `Aprism Load Report` with per-mod timings, `launch_detached.log`).
 
 <!-- GitHub@NDBlockConnect | BlockConnect@StarsailsClover -->
 

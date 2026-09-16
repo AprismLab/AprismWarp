@@ -19,9 +19,36 @@ if (root.length > 0 && !root.endsWith('/')) {
     throw new Error('If ROOT is defined, it must have a trailing slash.');
 }
 
+// FORK: AprismWarp ships a restrictive Content-Security-Policy meta on every
+// generated page (D-10). The Electron shell loads the editor from file://, so
+// the policy allows same-scheme local assets, inline styles/scripts and the
+// WebAssembly the TurboWarp compiler needs, while blocking every remote origin
+// (no remote code, data or connections). See gui/FORK.md row 8.
+const aprismwarpCsp = [
+    "default-src 'self' file:",
+    // 'unsafe-eval' is required: the upstream scratch-blocks/scratch-vm bundles
+    // evaluate strings at load (workspace + turbo compiler). 'wasm-unsafe-eval'
+    // is kept for the compiler's WebAssembly path. Remote origins stay blocked.
+    "script-src 'self' file: 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'",
+    "style-src 'self' file: 'unsafe-inline'",
+    "img-src 'self' file: data: blob:",
+    "media-src 'self' file: data: blob:",
+    "font-src 'self' file: data:",
+    "connect-src 'self' file:",
+    "worker-src 'self' file: blob:",
+    "child-src 'self' file: blob:",
+    "object-src 'none'",
+    "base-uri 'none'"
+].join('; ');
+
 const htmlWebpackPluginCommon = {
     root: root,
-    meta: JSON.parse(process.env.EXTRA_META || '{}'),
+    meta: Object.assign({
+        'Content-Security-Policy': {
+            'http-equiv': 'Content-Security-Policy',
+            content: aprismwarpCsp
+        }
+    }, JSON.parse(process.env.EXTRA_META || '{}')),
     APP_NAME
 };
 

@@ -26,19 +26,14 @@ editor shell mounted and zero renderer errors.
 | 5 | `src/playground/editor.jsx`: read `?workType=` from the URL into `window.APRISMWARP_WORK_TYPE` | the Electron shell opens the editor per project work type | entry file |
 | 6 | `src/lib/aprismwarp-blocks.js` (G4 extension of row 2): `irToWorkspaceXml` IR→block-XML reconstruction and the `window.AprismWarpBlocks.saveProject/loadProject` page API over `bridgeRequest` IPC | persistence flows through the bridge store endpoints with the token kept in the main process; native menu items in `desktop/main.js` call these APIs via `executeJavaScript`, so no upstream menu code changes | same file |
 | 7 | `src/lib/aprismwarp-blocks.js` (G5 extension of row 2): `wait`/`set-variable`/`compare` block definitions and the `previewIr` preview interpreter with variable-resolving `compare` semantics | preview-only actions must be interpretable in the renderer with parity to `validateIr(mode: preview)`; the interpreter grammar mirrors AWP-IR-031/032 enforcement | same file |
+| 8 | `webpack.config.js`: `htmlWebpackPluginCommon` injects a Content-Security-Policy meta into every generated page (`default-src 'self' file:`, `connect-src 'self' file:`, `object-src 'none'`, `base-uri 'none'`, no remote origins; `script-src` additionally allows `'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'`) | the Electron shell loads the editor from `file://` with Chromium defaults; the policy blocks remote code, data and connections. Upstream bundles require inline script and string evaluation (scratch-blocks workspace + TurboWarp compiler), so those sources are allowed and documented here rather than silently dropped | `webpack.config.js` lines 22-45 |
 
 ### G1 known caveats
 
-- `build/editor.html` carries no CSP meta; the Electron window runs with
-  Chromium defaults. CSP hardening is required before the first public
-  release candidate (tracked here; G2-G6 proceeded under Chromium defaults
-  with the token confined to the main process).
-- Routing style falls back from `filehash` to `hash` under `file://`
-  (benign console warning).
-- Upstream React 16 lifecycle deprecation warnings are visible at boot;
-  documented as the React-age risk in `docs/gui-integration.md` §6.
-- The build output (`gui/scratch-gui/build/`) and `node_modules/` are
-  git-ignored; rebuild with the command above after checkout.
+- RESOLVED (row 8): `build/editor.html` now carries the CSP meta; verified with the full smoke gate (`gui=true`, `irValid=true`, `roundTrip=true`, `package lockMatched=true`) and zero CSP violation console errors.
+- Routing style falls back from `filehash` to `hash` under `file://` (benign console warning).
+- Upstream React 16 lifecycle deprecation warnings are visible at boot; documented as the React-age risk in `docs/gui-integration.md` §6.
+- The build output (`gui/scratch-gui/build/`) and `node_modules/` are git-ignored; rebuild with `NODE_OPTIONS=--openssl-legacy-provider npm run build` after checkout.
 
 ## Pending (G2+)
 

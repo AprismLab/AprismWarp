@@ -576,6 +576,22 @@ if (typeof window !== 'undefined') {
         },
 
         /**
+         * Extracts the current workspace as IR and runs the preview
+         * interpreter over it. Returns {trace, variables, errors}.
+         */
+        previewProject: function () {
+            const project = window.APRISMWARP_PROJECT;
+            const workspace = window.Blockly.getMainWorkspace();
+            const ir = extractAprismWarpIr(
+                workspace,
+                window.APRISMWARP_WORK_TYPE || 'AprismJEMod',
+                project ? project.manifest.projectId : 'preview',
+                project ? project.manifest.target : {edition: 'JE', minecraft: '26.2', aprism: 'v26.8-Alpha.7'}
+            );
+            return previewIr(ir);
+        },
+
+        /**
          * Loads an .awp project through the host bridge and rebuilds the
          * AprismWarp blocks in the workspace. Returns the opened manifest.
          */

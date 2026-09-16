@@ -84,6 +84,42 @@ async function menuPackageProject(window) {
     }
 }
 
+async function menuPreviewProject(window) {
+    if (!currentProject) {
+        dialog.showMessageBox(window, {message: 'No project is open. Create one from the wizard first.'});
+        return;
+    }
+    try {
+        const result = JSON.parse(await window.webContents.executeJavaScript(
+            'JSON.stringify(window.AprismWarpBlocks.previewProject())', true, 60000));
+        const lines = result.trace.map(step => {
+            const effect = step.effect || {};
+            switch (effect.type) {
+            case 'log': return `[${step.event}] log: ${effect.message}`;
+            case 'schedule': return `[${step.event}] schedule ${effect.kind} (${effect.atTick ?? effect.everyTicks} ticks)`;
+            case 'wait': return `[${step.event}] wait ${effect.ticks} ticks`;
+            case 'variable': return `[${step.event}] set ${effect.name} = ${effect.value}`;
+            case 'compare': return `[${step.event}] compare -> ${effect.result}`;
+            default: return `[${step.event}] ${step.action}`;
+            }
+        });
+        const variables = Object.entries(result.variables).map(([k, v]) => `${k} = ${v}`);
+        dialog.showMessageBox(window, {
+            title: `Preview - ${currentProject.manifest.projectId}`,
+            message: lines.length || result.errors.length
+                ? `Trace (${lines.length} step(s))`
+                : 'Preview produced no steps.',
+            detail: [
+                ...lines,
+                variables.length ? `\nVariables:\n${variables.join('\n')}` : '',
+                result.errors.length ? `\nErrors:\n${result.errors.join('\n')}` : ''
+            ].filter(Boolean).join('\n') || 'The project has no executable handlers yet.'
+        });
+    } catch (error) {
+        dialog.showMessageBox(window, {message: `Preview failed: ${error.message}`});
+    }
+}
+
 async function menuSaveProject(window) {
     if (!currentProject) {
         dialog.showMessageBox(window, {message: 'No project is open. Create one from the wizard first.'});
@@ -159,6 +195,11 @@ async function createWindow() {
                     label: 'Package Project (.aje)',
                     accelerator: 'CmdOrCtrl+P',
                     click: () => menuPackageProject(window)
+                },
+                {
+                    label: 'Preview Project',
+                    accelerator: 'CmdOrCtrl+R',
+                    click: () => menuPreviewProject(window)
                 },
                 {type: 'separator'},
                 {role: 'quit'}
@@ -244,8 +285,7 @@ app.whenReady().then(async () => {
             let previewParity = 'skipped';
             {
                 const {validateIr} = require(path.join(__dirname, '..', 'src', 'ir', 'validate'));
-                const previewIrSample = {
-                    irVersion: 1,
+                const previewIrSample = {                    irVersion: 1,
                     projectId: 'smoke-project',
                     workType: 'AprismJEMod',
                     target: {edition: 'JE', minecraft: '26.2', aprism: 'v26.8-Alpha.7'},
@@ -281,7 +321,12 @@ app.whenReady().then(async () => {
                     `JSON.stringify(window.AprismWarpBlocks.previewIr(${JSON.stringify(unknownIr)}))`, true, 30000));
                 const unknownVerdict = validateIr(unknownIr, {mode: 'preview'});
                 const bothReject = unknownRun.errors.length === 1 && !unknownVerdict.valid;
-                console.log(`APRISMWARP_G5_CHECK previewValid=${previewVerdict.valid} ops=${traceOps === expectedOps} vars=${variableValue === 7} compare=${compareResult === true} bothRejectUnknown=${bothReject}`);
+                const menuPreview = JSON.parse(await window.webContents.executeJavaScript(
+                    'JSON.stringify(window.AprismWarpBlocks.previewProject())', true, 30000));
+                const menuPreviewOk = Array.isArray(menuPreview.trace) &&
+                    menuPreview.trace.length === 1 && menuPreview.trace[0].action === 'log.info' &&
+                    menuPreview.trace[0].effect.message === 'hello from AprismWarp';
+                console.log(`APRISMWARP_G5_CHECK previewValid=${previewVerdict.valid} ops=${traceOps === expectedOps} vars=${variableValue === 7} compare=${compareResult === true} bothRejectUnknown=${bothReject} menuPreview=${menuPreviewOk}`);
             }
             console.log(`APRISMWARP_SMOKE_OK bridge=${bridgeHandle.bridgeUrl} gui=${url.includes('editor.html')} project=${opened.manifest.projectId} ir=${ir ? 'extracted' : `error: ${irError}`} roundTrip=${roundTrip} package=${packaged} preview=${previewParity}`);
             window.destroy();
